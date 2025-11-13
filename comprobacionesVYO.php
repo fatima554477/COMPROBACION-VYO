@@ -670,43 +670,39 @@ var parametros = {
 
 
 
-       <select name="PFORMADE_PAGO"  class="form-select mb-3"  id="validationCustom02" aria-label="Default select example">
-                  
-					<script type="text/javascript">  function EFECTIVO (texto) {    alert(texto);} </script>
-                   
-	
-					
-					
-              <option style="background:#dee6fc"  <?php if($formaDePago=='04'){echo "selected ";} ?> value="04"  name="PFORMADE_PAGO">04 TARJETA DE CREDITO</option>
-            
-				 <option style="background:#f2b4f5"  name="PFORMADE_PAGO" value="03"  onclick="EFECTIVO('FAVOR DE SOLICITAR EL CAMBIO DE FACTURA POR NO COINCIDIR CON LA FORMA DE PAGO');">03 TRANSFERENCIA ELECTRONICA DE FONDOS</option>	
-		     <option style="background:#f2b4f5"  <?php if($formaDePago=='03'){echo "selected";} ?> value="03" name="PFORMADE_PAGO">03 TRANSFERENCIA ELECTRONICA DE FONDOS</option>
-        
-              <option style="background:#ddf5da"   <?php if($formaDePago=='01'){echo "selected";} ?>  value="01 EFECTIVO"   onclick="EFECTIVO('FAVOR DE SOLICITAR EL CAMBIO DE FACTURA POR NO COINCIDIR CON LA FORMA DE PAGO');" name="PFORMADE_PAGO">01 EFECTIVO</option>
-        
-              <option style="background:#fceade" <?php if($formaDePago=='02'){echo "selected";} ?> value="02" onclick="EFECTIVO('FAVOR DE SOLICITAR EL CAMBIO DE FACTURA POR NO COINCIDIR CON LA FORMA DE PAGO');" name="PFORMADE_PAGO">02 CHEQUE NOMITATIVO</option>
-        
+<select name="PFORMADE_PAGO" class="form-select mb-3" id="PFORMADE_PAGO" aria-label="Default select example">
 
-        
-              <option style="background:#f6fcde" <?php if($formaDePago=='05'){echo "selected";} ?> value="05" onclick="EFECTIVO('FAVOR DE SOLICITAR EL CAMBIO DE FACTURA POR NO COINCIDIR CON LA FORMA DE PAGO');">05 MONEDERO ELECTRONICO</option>
-        
-              <option style="background:#dee2fc" <?php if($formaDePago=='06'){echo "selected";} ?> value="06" onclick="EFECTIVO('FAVOR DE SOLICITAR EL CAMBIO DE FACTURA POR NO COINCIDIR CON LA FORMA DE PAGO');">06 DINERO ELECTRONICO</option>
-        
-              <option style="background:#f9e5fa" <?php if($formaDePago=='08'){echo "selected";} ?> value="08" onclick="EFECTIVO('FAVOR DE SOLICITAR EL CAMBIO DE FACTURA POR NO COINCIDIR CON LA FORMA DE PAGO');">08 VALES DE DESPENSA</option>
-        
-              <option style="background:#eefcde" <?php if($formaDePago=='28'){echo "selected";} ?> value="28" onclick="EFECTIVO('FAVOR DE SOLICITAR EL CAMBIO DE FACTURA POR NO COINCIDIR CON LA FORMA DE PAGO');">28 TARJETA DE DEBITO</option>
-        
-              <option style="background:#fcfbde" <?php if($formaDePago=='29'){echo "selected";} ?> value="29" onclick="EFECTIVO('FAVOR DE SOLICITAR EL CAMBIO DE FACTURA POR NO COINCIDIR CON LA FORMA DE PAGO');">29 TARJETA DE SERVICIO</option>
-        
-              <option style="background:#f9e5fa" <?php if($formaDePago=='99'){echo "selected";} ?> value="99" onclick="EFECTIVO('FAVOR DE SOLICITAR EL CAMBIO DE FACTURA POR NO COINCIDIR CON LA FORMA DE PAGO');">99 OTRO</option>
-        
-              </select>
+    <option style="background:#dee6fc"  <?php if($formaDePago=='04'){echo "selected ";} ?> value="04">04 TARJETA DE CREDITO</option>
+    <option style="background:#f2b4f5"  <?php if($formaDePago=='03'){echo "selected";} ?> value="03">03 TRANSFERENCIA ELECTRONICA DE FONDOS</option>
+    <option style="background:#ddf5da" <?php if($formaDePago=='01'){echo "selected";} ?> value="01">01 EFECTIVO</option>
+    <option style="background:#fceade" <?php if($formaDePago=='02'){echo "selected";} ?> value="02">02 CHEQUE NOMITATIVO</option>
+    <option style="background:#f6fcde" <?php if($formaDePago=='05'){echo "selected";} ?> value="05">05 MONEDERO ELECTRONICO</option>
+    <option style="background:#dee2fc" <?php if($formaDePago=='06'){echo "selected";} ?> value="06">06 DINERO ELECTRONICO</option>
+    <option style="background:#f9e5fa" <?php if($formaDePago=='08'){echo "selected";} ?> value="08">08 VALES DE DESPENSA</option>
+    <option style="background:#eefcde" <?php if($formaDePago=='28'){echo "selected";} ?> value="28">28 TARJETA DE DEBITO</option>
+    <option style="background:#fcfbde" <?php if($formaDePago=='29'){echo "selected";} ?> value="29">29 TARJETA DE SERVICIO</option>
+    <option style="background:#f9e5fa" <?php if($formaDePago=='99'){echo "selected";} ?> value="99">99 OTRO</option>
+
+</select>
+<script>
+(function() {
+    var selectFP = document.getElementById('PFORMADE_PAGO');
+    if (!selectFP) return;
+
+    // Solo revisar cuando se inserta (venga de XML o de donde sea)
+    if (selectFP.value !== '04') {
+        alert('FAVOR DE SOLICITAR EL CAMBIO DE FACTURA POR NO COINCIDIR CON LA FORMA DE PAGO');
+    }
+})();
+</script>
+
 			  
         
     <div/>
         </td>
 
         </tr>
+
   
 				 
              
