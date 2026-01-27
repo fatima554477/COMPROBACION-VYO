@@ -36,6 +36,7 @@
 
 	$NUMERO_CONSECUTIVO_PROVEE = isset($_POST["NUMERO_CONSECUTIVO_PROVEE"]) ? $_POST["NUMERO_CONSECUTIVO_PROVEE"] : ""; 
 	$RAZON_SOCIAL = isset($_POST["RAZON_SOCIAL"]) ? $_POST["RAZON_SOCIAL"] : ""; 
+	$RAZON_SOCIAL = isset($_POST["RAZON_SOCIAL"]) ? $_POST["RAZON_SOCIAL"] : ""; 
 	$NUMERO_EVENTO = isset($_POST["NUMERO_EVENTO"]) ? $_POST["NUMERO_EVENTO"] : ""; 
 	$RFC_PROVEEDOR = isset($_POST["RFC_PROVEEDOR"]) ? $_POST["RFC_PROVEEDOR"] : ""; 
 	$NOMBRE_EVENTO = isset($_POST["NOMBRE_EVENTO"]) ? $_POST["NOMBRE_EVENTO"] : ""; 
@@ -43,7 +44,7 @@
 	$CONCEPTO_PROVEE = isset($_POST["CONCEPTO_PROVEE"]) ? $_POST["CONCEPTO_PROVEE"] : ""; 
 	$MONTO_TOTAL_COTIZACION_ADEUDO = isset($_POST["MONTO_TOTAL_COTIZACION_ADEUDO"]) ? $_POST["MONTO_TOTAL_COTIZACION_ADEUDO"] : ""; 
 	$MONTO_FACTURA = isset($_POST["MONTO_FACTURA"]) ? $_POST["MONTO_FACTURA"] : ""; 
-	$EJECUTIVOTARJETA = isset($_POST["EJECUTIVOTARJETA"]) ? $_POST["EJECUTIVOTARJETA"] : ""; 
+	$EJECUTIVOTARJETA = isset($_POST["EJECUTIVOTARJETA_1"]) ? $_POST["EJECUTIVOTARJETA_1"] : ""; 
 	$MONTO_PROPINA = isset($_POST["MONTO_PROPINA"]) ? $_POST["MONTO_PROPINA"] : ""; 
 	$MONTO_DEPOSITAR = isset($_POST["MONTO_DEPOSITAR"]) ? $_POST["MONTO_DEPOSITAR"] : ""; 
 	$TIPO_DE_MONEDA = isset($_POST["TIPO_DE_MONEDA"]) ? $_POST["TIPO_DE_MONEDA"] : ""; 
@@ -69,6 +70,7 @@
 	$TOTAL_ENPESOS = isset($_POST["TOTAL_ENPESOS"]) ? $_POST["TOTAL_ENPESOS"] : ""; 
 	$IMPUESTO_HOSPEDAJE = isset($_POST["IMPUESTO_HOSPEDAJE"]) ? $_POST["IMPUESTO_HOSPEDAJE"] : ""; 
 	$IVA = isset($_POST["IVA"]) ? $_POST["IVA"] : "";
+	$EJECUTIVOTARJETA = isset($_POST["EJECUTIVOTARJETA"]) ? $_POST["EJECUTIVOTARJETA"] : "";
 	$NOMBRE_COMERCIAL = isset($_POST["NOMBRE_COMERCIAL"]) ? $_POST["NOMBRE_COMERCIAL"] : "";
 	$TImpuestosRetenidosIVA = isset($_POST["TImpuestosRetenidosIVA_5"]) ? $_POST["TImpuestosRetenidosIVA_5"] : ""; 
 	$TImpuestosRetenidosISR = isset($_POST["TImpuestosRetenidosISR_5"]) ? $_POST["TImpuestosRetenidosISR_5"] : ""; 
@@ -253,7 +255,7 @@ if($_POST['NUMERO_EVENTO']==true){
 
 
 <?php 
-if($database->plantilla_filtro($nombreTabla,"FECHA_DE_LLENADO",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#c9e8e8">FECHA DE LLENADO</th>
+if($database->plantilla_filtro($nombreTabla,"FECHA_DE_LLENADO",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#c9e8e8;text-align:center">FECHA Y HORA <br> DE LLENADO</th>
 <?php } ?>
 <?php 
 if($database->plantilla_filtro($nombreTabla,"ADJUNTAR_FACTURA_XML",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#c9e8e8;text-align:center">FACTURA XML</th>
@@ -335,7 +337,7 @@ if($database->plantilla_filtro($nombreTabla,"TOTAL_ENPESOS",$altaeventos,$DEPART
 <?php 
 if($database->plantilla_filtro($nombreTabla,"PFORMADE_PAGO",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#f48a81;text-align:center">FORMA DE PAGO</th>
 <?php } ?><?php 
-if($database->plantilla_filtro($nombreTabla,"FECHA_A_DEPOSITAR",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#f48a81;text-align:center">FECHA EFECTIVA DE PAGO</th>
+if($database->plantilla_filtro($nombreTabla,"FECHA_A_DEPOSITAR",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#f48a81;text-align:center">FECHA DE CARGO EN TDC</th>
 <?php } ?><?php 
 if($database->plantilla_filtro($nombreTabla,"STATUS_DE_PAGO",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#f48a81;text-align:center">STATUS DE PAGO</th>
 <?php } ?><?php 
@@ -381,11 +383,12 @@ if($database->plantilla_filtro($nombreTabla,"COMPROBANTE_DE_DEVOLUCION",$altaeve
 <?php } ?><?php 
 if($database->plantilla_filtro($nombreTabla,"NOTA_DE_CREDITO_COMPRA",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#c9e8e8;text-align:center">ADJUNTAR NOTA DE CREDITO DE COMPRA</th>
 <?php } ?>
-<?php } ?>
+
 
 
 <?php 
 if($database->plantilla_filtro($nombreTabla,"POLIZA_NUMERO",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#c9e8e8;text-align:center">PÓLIZA NÚMERO</th>
+<?php } ?>
 <?php } ?>
 <?php 
 if($database->plantilla_filtro($nombreTabla,"EJECUTIVOTARJETA",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#c9e8e8;text-align:center">NOMBRE DEL EJECUTIVO<br> TITULAR DE LA TARJETA</th>
@@ -401,8 +404,12 @@ if($database->plantilla_filtro($nombreTabla,"NOMBRE_DEL_AYUDO",$altaeventos,$DEP
 <?php } ?>
 
 <?php 
-if($database->plantilla_filtro($nombreTabla,"OBSERVACIONES_1",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#c9e8e8;text-align:center">OBSERVACIONES </th>
-<?php } ?><?php 
+if($database->plantilla_filtro($nombreTabla,"OBSERVACIONES_1",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#c9e8e8;text-align:center;width:700px;min-width:700px;max-width:700px;">OBSERVACIONES 1</th>
+<?php } ?>
+
+
+
+<?php 
 if($database->plantilla_filtro($nombreTabla,"ADJUNTAR_ARCHIVO_1",$altaeventos,$DEPARTAMENTO)=="si"){ ?><th style="background:#c9e8e8;text-align:center">ADJUNTAR ARCHIVO RELACIONADO<br> CON ESTA FACTURA </th>
 <?php } ?>
 
@@ -740,14 +747,14 @@ echo $COMPROBANTE_DE_DEVOLUCION; ?>"></td>
 if($database->plantilla_filtro($nombreTabla,"NOTA_DE_CREDITO_COMPRA",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8"><input type="text" class="form-control" id="NOTA_DE_CREDITO_COMPRA_1" value="<?php 
 echo $NOTA_DE_CREDITO_COMPRA; ?>"></td>
 <?php } ?>
-<?php } ?>
+
 
 
 <?php  
 if($database->plantilla_filtro($nombreTabla,"POLIZA_NUMERO",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8"><input type="text" class="form-control" id="POLIZA_NUMERO_1" value="<?php 
 echo $POLIZA_NUMERO; ?>"></td>
 <?php } ?>
-
+<?php } ?>
 <?php  
 if($database->plantilla_filtro($nombreTabla,"EJECUTIVOTARJETA",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8"><input type="text" class="form-control" id="EJECUTIVOTARJETA_1" value="<?php 
 echo $EJECUTIVOTARJETA; ?>"></td>
@@ -769,7 +776,7 @@ echo $NOMBRE_DEL_EJECUTIVO; ?>"></td>
 
 
 <?php  
-if($database->plantilla_filtro($nombreTabla,"OBSERVACIONES_1",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8"><input type="text" class="form-control" id="OBSERVACIONES_1_1_1" value="<?php
+if($database->plantilla_filtro($nombreTabla,"OBSERVACIONES_1",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8;width:700px;min-width:700px;max-width:700px;"><input type="text" class="form-control" id="OBSERVACIONES_1_2" value="<?php 
 echo $OBSERVACIONES_1; ?>"></td>
 <?php } ?>
 
@@ -1110,32 +1117,38 @@ $colspan += 1; ?>/>
 
 
 
+
 <td style="text-align:center; background:
+
     <?php echo ($row["STATUS_FINANZAS"] == 'si') ? '#ceffcc' : '#e9d8ee'; ?>;" 
     id="color_FINANZAS<?php echo $row["07COMPROBACIONid"]; ?>">
 
     <input type="checkbox" 
-        style="width:30px; cursor:pointer;" 
+        style="width:30px;" 
         class="form-check-input" 
         id="STATUS_FINANZAS<?php echo $row["07COMPROBACIONid"]; ?>"  
         name="STATUS_FINANZAS<?php echo $row["07COMPROBACIONid"]; ?>" 
         value="<?php echo $row["07COMPROBACIONid"]; ?>"
-        <?php 
+       <?php
+        $permisoVerFINANZAS       = $database->variablespermisos('', 'DIRECCIONCOM2', 'ver') == 'si';
+        $permisoModificarFINANZAS = $database->variablespermisos('', 'DIRECCIONCOM2', 'modificar') == 'si';
+
         if ($row["STATUS_FINANZAS"] == 'si') {
-            // Ya autorizado → marcado y bloqueado
-            echo 'checked disabled style="cursor:not-allowed;" title="Ya autorizado"';
+            // Ya autorizado → marcado y bloqueado salvo que exista permiso de modificación
+            echo $permisoModificarFINANZAS
+                ? 'checked onclick="STATUS_FINANZAS('.$row["07COMPROBACIONid"].')"'
+                : 'checked disabled style="cursor:not-allowed;" title="Sin permiso para modificar"';
         } else {
-            if($database->variablespermisos("","DIRECCIONCOM2","ver") == "si"){
-                // Al marcar: ejecuta tu función, bloquea el checkbox y cambia estilo
-                echo 'onclick="STATUS_FINANZAS('.$row["07COMPROBACIONid"].'); this.disabled=true; this.style.cursor=\'not-allowed\';"';
+            // Validar permiso antes de habilitar
+            if($permisoVerFINANZAS){
+                echo 'onclick="STATUS_FINANZAS('.$row["07COMPROBACIONid"].')"';
             } else {
-                // Sin permiso → bloqueado
+                // Sin permiso → deshabilitado y con aviso
                 echo 'disabled style="cursor:not-allowed;" title="Sin permiso para modificar"';
             }
         }
         ?>
     />
-
     <?php $colspan += 1; ?>
 </td>
 
@@ -1144,20 +1157,25 @@ $colspan += 1; ?>/>
     <?php echo ($row["STATUS_AUDITORIA2"] == 'si') ? '#ceffcc' : '#e9d8ee'; ?>;" 
     id="color_AUDITORIA2<?php echo $row["07COMPROBACIONid"]; ?>">
 
-    <input type="checkbox" 
-        style="width:30px; cursor:pointer;" 
-        class="form-check-input" 
-        id="STATUS_AUDITORIA2<?php echo $row["07COMPROBACIONid"]; ?>"  
-        name="STATUS_AUDITORIA2<?php echo $row["07COMPROBACIONid"]; ?>" 
+    <input type="checkbox"
+        style="width:30px; cursor:pointer;"
+        class="form-check-input"
+        id="STATUS_AUDITORIA2<?php echo $row["07COMPROBACIONid"]; ?>"
+        name="STATUS_AUDITORIA2<?php echo $row["07COMPROBACIONid"]; ?>"
         value="<?php echo $row["07COMPROBACIONid"]; ?>"
-        <?php 
+        <?php
+        $permisoVerAUDITORIA2       = $database->variablespermisos('', 'AUDITORIACOM2', 'ver') == 'si';
+        $permisoModificarAUDITORIA2 = $database->variablespermisos('', 'AUDITORIACOM2', 'modificar') == 'si';
+
         if ($row["STATUS_AUDITORIA2"] == 'si') {
-            // Ya autorizado → marcado y bloqueado
-            echo 'checked disabled style="cursor:not-allowed;" title="Ya autorizado"';
+            // Ya autorizado → marcado y bloqueado salvo permiso de modificación
+            echo $permisoModificarAUDITORIA2
+                ? 'checked onclick="STATUS_AUDITORIA2('.$row["07COMPROBACIONid"].')"'
+                : 'checked disabled style="cursor:not-allowed;" title="Ya autorizado"';
         } else {
-            if($database->variablespermisos("","AUDITORIACOM2","ver") == "si"){
-                // Permitir acción → ejecutar función y bloquear checkbox
-                echo 'onclick="STATUS_AUDITORIA2('.$row["07COMPROBACIONid"].'); this.disabled=true; this.style.cursor=\'not-allowed\'; document.getElementById(\'color_AUDITORIA2'.$row["07COMPROBACIONid"].'\').style.background=\'#ceffcc\';"';
+            if($permisoVerAUDITORIA2){
+                // Permitir acción → al marcar se llama a tu función y se bloquea el checkbox
+                echo 'onclick="STATUS_AUDITORIA2('.$row["07COMPROBACIONid"].'); this.disabled=true; this.style.cursor=\'not-allowed\';"';
             } else {
                 // Sin permiso → bloqueado
                 echo 'disabled style="cursor:not-allowed;" title="Sin permiso para modificar"';
@@ -1165,15 +1183,15 @@ $colspan += 1; ?>/>
         }
         ?>
     />
-
     <?php $colspan += 1; ?>
+
 </td>
 
 
 
 <td style="text-align:center; background:
-    <?php echo ($row["STATUS_AUDITORIA3"] == 'si') ? '#ceffcc' : '#e9d8ee'; ?>;"
-    id="color_AUDITORIA3<?php echo $row["07COMPROBACIONid"]; ?>">
+    <?php echo ($row["STATUS_AUDITORIA3"] == 'si') ? '#ceffcc' : '#e9d8ee'; ?>;" 
+    id="color_AUDITORIA2<?php echo $row["07COMPROBACIONid"]; ?>">
 
     <input type="checkbox"
         style="width:30px; cursor:pointer;"
@@ -1182,16 +1200,18 @@ $colspan += 1; ?>/>
         name="STATUS_AUDITORIA3<?php echo $row["07COMPROBACIONid"]; ?>"
         value="<?php echo $row["07COMPROBACIONid"]; ?>"
         <?php
+        $permisoVerAUDITORIA3       = $database->variablespermisos('', 'CONTABILIDADCOM2', 'ver') == 'si';
+        $permisoModificarAUDITORIA3 = $database->variablespermisos('', 'CONTABILIDADCOM2', 'modificar') == 'si';
+
         if ($row["STATUS_AUDITORIA3"] == 'si') {
-            // Ya autorizado → marcado y bloqueado
-            echo 'checked disabled style="cursor:not-allowed;" title="Ya autorizado"';
+            // Ya autorizado → marcado y bloqueado salvo permiso de modificación
+            echo $permisoModificarAUDITORIA3
+                ? 'checked onclick="STATUS_AUDITORIA3('.$row["07COMPROBACIONid"].')"'
+                : 'checked disabled style="cursor:not-allowed;" title="Ya autorizado"';
         } else {
-            if ($database->variablespermisos("", "CONTABILIDADCOM2", "ver") == "si") {
-                // Permitir acción → ejecutar función, bloquear y pintar verde en vivo
-                echo 'onclick="STATUS_AUDITORIA3('.$row["07COMPROBACIONid"].');'
-                    .' this.disabled=true; this.style.cursor=\'not-allowed\';'
-                    .' document.getElementById(\'color_AUDITORIA3'.$row["07COMPROBACIONid"].'\').style.background=\'#ceffcc\';'
-                    .' this.title=\'Autorizado\';"';
+            if($permisoVerAUDITORIA3){
+                // Permitir acción → al marcar se llama a tu función y se bloquea el checkbox
+                echo 'onclick="STATUS_AUDITORIA3('.$row["07COMPROBACIONid"].'); this.disabled=true; this.style.cursor=\'not-allowed\';"';
             } else {
                 // Sin permiso → bloqueado
                 echo 'disabled style="cursor:not-allowed;" title="Sin permiso para modificar"';
@@ -1199,15 +1219,32 @@ $colspan += 1; ?>/>
         }
         ?>
     />
-
     <?php $colspan += 1; ?>
+
 </td>
 
 
 
 
-<?php  if($database->plantilla_filtro($nombreTabla,"FECHA_DE_LLENADO",$altaeventos,$DEPARTAMENTO)=="si"){ $colspan += 1; ?><td style="text-align:center"><?php echo $row['FECHA_DE_LLENADO'];?></td>
-<?php } ?>
+<?php  
+if ($database->plantilla_filtro($nombreTabla,"FECHA_DE_LLENADO",$altaeventos,$DEPARTAMENTO)=="si") {
+
+    $fechaHora = $row['FECHA_DE_LLENADO'];
+    $fecha = date('d-m-Y', strtotime($fechaHora));
+    $hora  = date('H:i:s', strtotime($fechaHora));
+?>
+<td style="text-align:center">
+    <?php echo $fecha; ?>
+    <span style="color:#2542C4; font-weight:bold;">
+        <?php echo $hora; ?>
+    </span>
+</td>
+<?php 
+    $colspan += 1;
+} 
+?>
+
+
 <?php  if($database->plantilla_filtro($nombreTabla,"ADJUNTAR_FACTURA_XML",$altaeventos,$DEPARTAMENTO)=="si"){ $colspan += 1; ?><td style="text-align:center"><?php echo $ADJUNTAR_FACTURA_XML; ?></td>
 <?php } ?>
 <?php  if($database->plantilla_filtro($nombreTabla,"ADJUNTAR_FACTURA_PDF",$altaeventos,$DEPARTAMENTO)=="si"){ $colspan += 1; ?><td style="text-align:center"><?php echo $ADJUNTAR_FACTURA_PDF; ?></td>
@@ -1456,10 +1493,11 @@ $colspan2 += 1;
 $colspan2 += 1;
 ?></td>
 <?php } ?>
-<?php } ?>
+
 <?php  if($database->plantilla_filtro($nombreTabla,"POLIZA_NUMERO",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="text-align:center"><?php echo $row['POLIZA_NUMERO'];
 $colspan2 += 1;
 ?></td>
+<?php } ?>
 <?php } ?>
 
 <?php  
@@ -1496,10 +1534,30 @@ $colspan2 += 1;
 ?></td>
 <?php } ?>
 
-<?php  if($database->plantilla_filtro($nombreTabla,"OBSERVACIONES_1",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="text-align:center"><?php echo $row['OBSERVACIONES_1'];
-$colspan2 += 1;
-?></td>
+<?php  if($database->plantilla_filtro($nombreTabla,"OBSERVACIONES_1",$altaeventos,$DEPARTAMENTO)=="si"){ ?>
+
+<td style="
+    text-align:left;
+
+    width:700px;
+
+    min-width:700px;
+
+    max-width:700px;
+
+">
+
+
+
+    <div style="width:700px; min-width:700px; max-width:700px; white-space:normal; word-break:break-word;">
+
+        <?php echo htmlspecialchars($row['OBSERVACIONES_1']); ?>
+
+    </div>
+
+</td>
 <?php } ?>
+
 <?php  if($database->plantilla_filtro($nombreTabla,"ADJUNTAR_ARCHIVO_1",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="text-align:center"><?php echo $ADJUNTAR_ARCHIVO_1; 
 $colspan2 += 1;
 ?></td>
@@ -1758,17 +1816,55 @@ $totales2 = 'si';
 <?php } ?>
 
 <?php  
-$UUID = isset($row['UUID']) ? trim($row['UUID']) : '';
 
-if ($UUID == '' && $database->variablespermisos('', 'SUBIRFACTURACOMVYO', 'ver') == 'si') { ?>
-    <input 
-        type="button" 
-        name="view" 
-        value="SUBIR FACTURA" 
-        id="<?php echo $row['07COMPROBACIONid']; ?>" 
-        class="btn btn-info btn-xs view_dataSUBIRCOM" 
-    />
-<?php } ?>
+$UUID = isset($row['UUID']) ? trim($row['UUID']) : '';
+$STATUS_VENTAS = isset($row['STATUS_VENTAS']) ? trim($row['STATUS_VENTAS']) : '';
+
+// Normalizamos STATUS_VENTAS
+$esNoVentas = (
+        $STATUS_VENTAS === 'no' 
+     || $STATUS_VENTAS === '' 
+     || $STATUS_VENTAS === null
+);
+
+if ($database->variablespermisos('', 'SUBIRFACTURACOMVYO', 'ver') == 'si') {
+
+    // SOLO si STATUS_VENTAS es NO, VACIO o NULL
+    if ($esNoVentas) {
+
+        // 1) Tiene UUID => MODIFICAR
+        if ($UUID != '') { ?>
+            
+            <input 
+                type="button"
+                name="view"
+                value="MODIFICAR"
+                id="<?php echo $row['07COMPROBACIONid']; ?>"
+                class="btn btn-info btn-xs view_dataSUBIRCOM"
+            />
+
+        <?php
+        }
+        // 2) No tiene UUID => SUBIR FACTURA
+        else { ?>
+
+            <input 
+                type="button"
+                name="view"
+                value="SUBIR FACTURA"
+                id="<?php echo $row['07COMPROBACIONid']; ?>"
+                class="btn btn-info btn-xs view_dataSUBIRCOM"
+            />
+
+        <?php
+        }
+    }
+
+    // SI STATUS_VENTAS = "si" ⇒ no mostrar nada
+}
+?>
+
+
 
 
 

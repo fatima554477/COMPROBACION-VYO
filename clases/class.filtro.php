@@ -134,7 +134,12 @@ if($search['NUMERO_EVENTO']!=""){
 $sWhere2.="  $tables.NUMERO_EVENTO LIKE '%".$search['NUMERO_EVENTO']."%' OR ";}
 
 if($search['EJECUTIVOTARJETA']!=""){
-$sWhere2.="  $tables.EJECUTIVOTARJETA LIKE '%".$search['EJECUTIVOTARJETA']."%' OR ";}
+$ejecutivoTarjeta = strtoupper($search['EJECUTIVOTARJETA']);
+$ejecutivoTarjetaEscapado = $this->mysqli->real_escape_string($ejecutivoTarjeta);
+
+$busquedaNombre = "SELECT idRelacion FROM 01informacionpersonal WHERE UPPER(CONCAT_WS(' ', NOMBRE_1, NOMBRE_2, APELLIDO_PATERNO, APELLIDO_MATERNO)) LIKE '%".$ejecutivoTarjetaEscapado."%'";
+
+$sWhere2.="  (UPPER($tables.EJECUTIVOTARJETA) LIKE '%".$ejecutivoTarjetaEscapado."%' OR $tables.EJECUTIVOTARJETA IN (".$busquedaNombre.")) OR ";}
 
 
 if($search['NOMBRE_EVENTO']!=""){

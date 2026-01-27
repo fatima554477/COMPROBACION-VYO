@@ -358,6 +358,7 @@ function LIMPIAR00(){
  $("#CLASI_GENERAL_1").val("");
  $("#NOMBRE_COMERCIAL_1").val("");
  $("#IVA_1").val("");
+ $("#EJECUTIVOTARJETA_1").val("");
 
  
 }
@@ -416,7 +417,7 @@ var TIPO_CAMBIOP=$("#TIPO_CAMBIOP").val();
 var TOTAL_ENPESOS=$("#TOTAL_ENPESOS").val();
 var IMPUESTO_HOSPEDAJE=$("#IMPUESTO_HOSPEDAJE").val();
 
-var EJECUTIVOTARJETA=$("#EJECUTIVOTARJETA").val();
+var EJECUTIVOTARJETA=$("#EJECUTIVOTARJETA_1").val();
 var IVA=$("#IVA_1").val();
 var TImpuestosRetenidosIVA=$("#TImpuestosRetenidosIVA_5").val();
 var TImpuestosRetenidosISR=$("#TImpuestosRetenidosISR_5").val();
@@ -496,7 +497,7 @@ var propina=$("#propina").val();
 'IMPUESTO_HOSPEDAJE':IMPUESTO_HOSPEDAJE,
 'EJECUTIVOTARJETA':EJECUTIVOTARJETA,
 'NOMBRE_COMERCIAL':NOMBRE_COMERCIAL,
-'IVA_1':IVA,
+'IVA':IVA,
 'TImpuestosRetenidosIVA_5':TImpuestosRetenidosIVA,
 'TImpuestosRetenidosISR_5':TImpuestosRetenidosISR,
 'descuentos_5':descuentos,
