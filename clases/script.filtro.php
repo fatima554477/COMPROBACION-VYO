@@ -348,7 +348,7 @@ function LIMPIAR00(){
  $("#PFORMADE_PAGO_1").val("");
  $("#FECHA_A_DEPOSITAR_1").val("");
  $("#STATUS_DE_PAGO_1").val("");
- $("#BANCO_ORIGEN1AA").val("");
+ $("#BANCO_ORIGEN").val("");
  $("#ACTIVO_FIJO_1").val("");
  $("#GASTO_FIJO_1").val("");
  $("#PAGAR_CADA_1").val("");
@@ -382,7 +382,7 @@ function LIMPIAR00(){
 			var DEPARTAMENTO2=$("#DEPARTAMENTO2WE").val();
 			var NUMERO_CONSECUTIVO_PROVEE=$("#NUMERO_CONSECUTIVO_PROVEE_1").val();
 var RAZON_SOCIAL=$("#RAZON_SOCIAL_1").val();
-var RFC_PROVEEDOR=$("#RFC_PROVEEDOR_1").val();
+var RFC_PROVEEDOR=($("#RFC_PROVEEDOR_1").val() || "").trim();
 var NUMERO_EVENTO=$("#NUMERO_EVENTO_1").val();
 var NOMBRE_EVENTO=$("#NOMBRE_EVENTO_1").val();
 var MOTIVO_GASTO=$("#MOTIVO_GASTO_1").val();
@@ -395,7 +395,7 @@ var TIPO_DE_MONEDA=$("#TIPO_DE_MONEDA_1").val();
 var PFORMADE_PAGO=$("#PFORMADE_PAGO_1").val();
 var FECHA_A_DEPOSITAR=$("#FECHA_A_DEPOSITAR_1").val();
 var STATUS_DE_PAGO=$("#STATUS_DE_PAGO_1").val();
-var BANCO_ORIGEN=$("#BANCO_ORIGEN1AA").val();
+var BANCO_ORIGEN=($("#BANCO_ORIGEN_1").val() || "").trim();
 var ACTIVO_FIJO=$("#ACTIVO_FIJO_1").val();
 var GASTO_FIJO=$("#GASTO_FIJO_1").val();
 var PAGAR_CADA=$("#PAGAR_CADA_1").val();
@@ -418,7 +418,7 @@ var TOTAL_ENPESOS=$("#TOTAL_ENPESOS").val();
 var IMPUESTO_HOSPEDAJE=$("#IMPUESTO_HOSPEDAJE").val();
 
 var EJECUTIVOTARJETA=$("#EJECUTIVOTARJETA_1").val();
-var IVA=$("#IVA_1").val();
+var IVA=($("#IVA_1").val() || "").replace(/,/g, "").trim();
 var TImpuestosRetenidosIVA=$("#TImpuestosRetenidosIVA_5").val();
 var TImpuestosRetenidosISR=$("#TImpuestosRetenidosISR_5").val();
 var descuentos=$("#descuentos_5").val();

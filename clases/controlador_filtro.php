@@ -761,7 +761,7 @@ echo $EJECUTIVOTARJETA; ?>"></td>
 <?php } ?>
 
 <?php  
-if($database->plantilla_filtro($nombreTabla,"BANCO_ORIGEN",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8"><input type="text" class="form-control" id="BANCO_ORIGEN" value="<?php 
+if($database->plantilla_filtro($nombreTabla,"BANCO_ORIGEN",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8"><input type="text" class="form-control" id="BANCO_ORIGEN_1" value="<?php 
 echo $BANCO_ORIGEN; ?>"></td>
 <?php } ?>
 
@@ -1020,57 +1020,49 @@ else {
     </td>
 
 <?php
+if (!function_exists('renderDocumentLinks')) {
+	function renderDocumentLinks($rawValue) {
+		if (!isset($rawValue) || trim((string)$rawValue) === '') {
+			return '';
+		}
+
+		$links = '';
+		$files = preg_split('/\s*,\s*/', (string)$rawValue);
+		foreach ($files as $file) {
+			$file = trim($file);
+			if ($file === '') {
+				continue;
+			}
+
+			$filePath = 'includes/archivos/' . rawurlencode($file);
+			$links .= '<a href="' . $filePath . '" target="_blank">Ver!</a><br/>';
+		}
+
+		return $links;
+	}
+}
+
 $ADJUNTAR_FACTURA_PDF = '';$ADJUNTAR_FACTURA_XML='';$ADJUNTAR_COTIZACION='';$CONPROBANTE_TRANSFERENCIA='';$ADJUNTAR_ARCHIVO_1='';$COMPLEMENTOS_PAGO_PDF='';
 $COMPLEMENTOS_PAGO_XML='';$CANCELACIONES_PDF='';$CANCELACIONES_XML='';$ADJUNTAR_FACTURA_DE_COMISION_PDF='';$ADJUNTAR_FACTURA_DE_COMISION_XML='';$CALCULO_DE_COMISION='';
 $COMPROBANTE_DE_DEVOLUCION='';$NOTA_DE_CREDITO_COMPRA='';$FOTO_ESTADO_PROVEE11='';$ADJUNTAR_ARCHIVO_1='';
 $querycontrasDOCTOS = $database->Listado_subefacturaDOCTOS($row['07COMPROBACIONid']);
 while($rowDOCTOS = mysqli_fetch_array($querycontrasDOCTOS))
 {
-	if($rowDOCTOS["ADJUNTAR_FACTURA_PDF"]!=''){
-		$ADJUNTAR_FACTURA_PDF .= '<a href="includes/archivos/'.$rowDOCTOS["ADJUNTAR_FACTURA_PDF"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["ADJUNTAR_FACTURA_XML"]!=''){
-		$ADJUNTAR_FACTURA_XML .= '<a href="includes/archivos/'.$rowDOCTOS["ADJUNTAR_FACTURA_XML"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["ADJUNTAR_COTIZACION"]!=''){
-		$ADJUNTAR_COTIZACION .= '<a href="includes/archivos/'.$rowDOCTOS["ADJUNTAR_COTIZACION"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["CONPROBANTE_TRANSFERENCIA"]!=''){
-		$CONPROBANTE_TRANSFERENCIA .= '<a href="includes/archivos/'.$rowDOCTOS["CONPROBANTE_TRANSFERENCIA"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["COMPLEMENTOS_PAGO_PDF"]!='' ){
-		$COMPLEMENTOS_PAGO_PDF .= '<a href="includes/archivos/'.$rowDOCTOS["COMPLEMENTOS_PAGO_PDF"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["COMPLEMENTOS_PAGO_XML"]!=''){
-		$COMPLEMENTOS_PAGO_XML .= '<a href="includes/archivos/'.$rowDOCTOS["COMPLEMENTOS_PAGO_XML"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["CANCELACIONES_PDF"]!=''){
-		$CANCELACIONES_PDF .= '<a href="includes/archivos/'.$rowDOCTOS["CANCELACIONES_PDF"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["CANCELACIONES_XML"]!=''){
-		$CANCELACIONES_XML .= '<a href="includes/archivos/'.$rowDOCTOS["CANCELACIONES_XML"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["ADJUNTAR_FACTURA_DE_COMISION_PDF"]!=''){
-		$ADJUNTAR_FACTURA_DE_COMISION_PDF .= '<a href="includes/archivos/'.$rowDOCTOS["ADJUNTAR_FACTURA_DE_COMISION_PDF"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["ADJUNTAR_FACTURA_DE_COMISION_XML"]!=''){
-		$ADJUNTAR_FACTURA_DE_COMISION_XML .= '<a href="includes/archivos/'.$rowDOCTOS["ADJUNTAR_FACTURA_DE_COMISION_XML"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["CALCULO_DE_COMISION"]!=''){
-		$CALCULO_DE_COMISION .= '<a href="includes/archivos/'.$rowDOCTOS["CALCULO_DE_COMISION"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["COMPROBANTE_DE_DEVOLUCION"]!=''){
-		$COMPROBANTE_DE_DEVOLUCION .= '<a href="includes/archivos/'.$rowDOCTOS["COMPROBANTE_DE_DEVOLUCION"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["NOTA_DE_CREDITO_COMPRA"]!=''){
-		$NOTA_DE_CREDITO_COMPRA .= '<a href="includes/archivos/'.$rowDOCTOS["NOTA_DE_CREDITO_COMPRA"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["FOTO_ESTADO_PROVEE11"]!=''){
-		$FOTO_ESTADO_PROVEE11 .= '<a href="includes/archivos/'.$rowDOCTOS["FOTO_ESTADO_PROVEE11"].'" target ="_blank">Ver!</a><br/>';
-	}
-	if($rowDOCTOS["ADJUNTAR_ARCHIVO_1"]!=''){
-		$ADJUNTAR_ARCHIVO_1 .= '<a href="includes/archivos/'.$rowDOCTOS["ADJUNTAR_ARCHIVO_1"].'" target ="_blank">Ver!</a><br/>';
-	}
+	$ADJUNTAR_FACTURA_PDF .= renderDocumentLinks($rowDOCTOS["ADJUNTAR_FACTURA_PDF"]);
+	$ADJUNTAR_FACTURA_XML .= renderDocumentLinks($rowDOCTOS["ADJUNTAR_FACTURA_XML"]);
+	$ADJUNTAR_COTIZACION .= renderDocumentLinks($rowDOCTOS["ADJUNTAR_COTIZACION"]);
+	$CONPROBANTE_TRANSFERENCIA .= renderDocumentLinks($rowDOCTOS["CONPROBANTE_TRANSFERENCIA"]);
+	$COMPLEMENTOS_PAGO_PDF .= renderDocumentLinks($rowDOCTOS["COMPLEMENTOS_PAGO_PDF"]);
+	$COMPLEMENTOS_PAGO_XML .= renderDocumentLinks($rowDOCTOS["COMPLEMENTOS_PAGO_XML"]);
+	$CANCELACIONES_PDF .= renderDocumentLinks($rowDOCTOS["CANCELACIONES_PDF"]);
+	$CANCELACIONES_XML .= renderDocumentLinks($rowDOCTOS["CANCELACIONES_XML"]);
+	$ADJUNTAR_FACTURA_DE_COMISION_PDF .= renderDocumentLinks($rowDOCTOS["ADJUNTAR_FACTURA_DE_COMISION_PDF"]);
+	$ADJUNTAR_FACTURA_DE_COMISION_XML .= renderDocumentLinks($rowDOCTOS["ADJUNTAR_FACTURA_DE_COMISION_XML"]);
+	$CALCULO_DE_COMISION .= renderDocumentLinks($rowDOCTOS["CALCULO_DE_COMISION"]);
+	$COMPROBANTE_DE_DEVOLUCION .= renderDocumentLinks($rowDOCTOS["COMPROBANTE_DE_DEVOLUCION"]);
+	$NOTA_DE_CREDITO_COMPRA .= renderDocumentLinks($rowDOCTOS["NOTA_DE_CREDITO_COMPRA"]);
+	$FOTO_ESTADO_PROVEE11 .= renderDocumentLinks($rowDOCTOS["FOTO_ESTADO_PROVEE11"]);
+	$ADJUNTAR_ARCHIVO_1 .= renderDocumentLinks($rowDOCTOS["ADJUNTAR_ARCHIVO_1"]);
 }
 ?>
 
