@@ -34,6 +34,14 @@ if($action=='ajax'){
 	echo $resultado = $pagoproveedores->buscarnombre($NUMERO_EVENTO);
 }
 
+
+if(!empty($_FILES["ADJUNTAR_FACTURA_XML"]["name"])){
+        $extensionFactura = strtolower(pathinfo($_FILES["ADJUNTAR_FACTURA_XML"]["name"], PATHINFO_EXTENSION));
+        if($extensionFactura !== 'xml'){
+                echo "EL ARCHIVO DEBE ESTAR EN FORMATO XML.";
+                exit;
+        }
+}
 if($q==true){
 	$json = [];
 	$json = $pagoproveedores->buscarnumero2($q);
@@ -285,11 +293,39 @@ if( $_FILES["ADJUNTAR_FACTURA_XML"] == true){
 $_SESSION["idCG"] = $idwebc;
 }
        // ob_end_clean();
+
+if (!isset($idwebc)) {
+	$idwebc = '';
+}
 		
 $idCG = isset($_SESSION["idCG"])?$_SESSION["idCG"]:$idwebc;
+$idCG = ($idCG == null) ? '' : $idCG;
 $IPpagoprovee = isset($_POST["IPpagoprovee"])?$_POST["IPpagoprovee"]:"";
 
-if($IPpagoprovee !=''  and ($_FILES["ADJUNTAR_FACTURA_XML"] == true or $_FILES["ADJUNTAR_FACTURA_PDF"] == true or  $_FILES["ADJUNTAR_COTIZACION"] == true  or  $_FILES["CONPROBANTE_TRANSFERENCIA"] == true  or  $_FILES["ADJUNTAR_ARCHIVO_1"] == true or $_FILES["FOTO_ESTADO_PROVEE11"] == true  or  $_FILES["COMPLEMENTOS_PAGO_PDF"] == true or  $_FILES["COMPLEMENTOS_PAGO_XML"] == true or  $_FILES["CANCELACIONES_PDF"] == true or  $_FILES["CANCELACIONES_XML"] == true or  $_FILES ["ADJUNTAR_FACTURA_DE_COMISION_PDF"] == true or  $_FILES ["ADJUNTAR_FACTURA_DE_COMISION_XML"] == true or  $_FILES["CALCULO_DE_COMISION"] == true or  $_FILES["COMPROBANTE_DE_DEVOLUCION"] == true or  $_FILES["NOTA_DE_CREDITO_COMPRA"] == true )){ 
+if($idCG == '' && ($NOMBRE_COMERCIAL != '' || $RFC_PROVEEDOR != '')){
+	$conn = $conexion->db();
+	if($RFC_PROVEEDOR != '' && $pagoproveedores->verificar_rfc($conn,$RFC_PROVEEDOR) != ''){
+		$idCG = $pagoproveedores->verificar_rfc($conn,$RFC_PROVEEDOR);
+	}elseif($NOMBRE_COMERCIAL != '' && $pagoproveedores->verificar_usuario($conn,$NOMBRE_COMERCIAL) != ''){
+		$idCG = $pagoproveedores->verificar_usuario($conn,$NOMBRE_COMERCIAL);
+	}else{
+		$nombreTemporal = $NOMBRE_COMERCIAL != '' ? trim($NOMBRE_COMERCIAL) : 'PROVEEDOR_TEMPORAL';
+		$idCG = $pagoproveedores->ingresar_usuario($conn,$nombreTemporal);
+		if($RFC_PROVEEDOR != ''){
+			$pagoproveedores->ingresar_rfc($conn,TRIM($RFC_PROVEEDOR),$idCG);
+		}
+	}
+	$_SESSION["idCG"] = $idCG;
+}
+
+if($idCG == ''){
+	$conn = $conexion->db();
+	$nombreTemporal = 'PROVEEDOR_TEMPORAL_'.date('Ymd_His');
+	$idCG = $pagoproveedores->ingresar_usuario($conn,$nombreTemporal);
+	$_SESSION["idCG"] = $idCG;
+}
+
+if($IPpagoprovee !=''  and ($_FILES["ADJUNTAR_FACTURA_XML"] == true or $_FILES["ADJUNTAR_FACTURA_PDF"] == true or  $_FILES["ADJUNTAR_COTIZACION"] == true  or  $_FILES["CONPROBANTE_TRANSFERENCIA"] == true  or  $_FILES["ADJUNTAR_ARCHIVO_1"] == true or $_FILES["FOTO_ESTADO_PROVEE11"] == true  or  $_FILES["COMPLEMENTOS_PAGO_PDF"] == true or  $_FILES["COMPLEMENTOS_PAGO_XML"] == true or  $_FILES["CANCELACIONES_PDF"] == true or  $_FILES["CANCELACIONES_XML"] == true or  $_FILES ["ADJUNTAR_FACTURA_DE_COMISION_PDF"] == true or  $_FILES ["ADJUNTAR_FACTURA_DE_COMISION_XML"] == true or  $_FILES["CALCULO_DE_COMISION"] == true or  $_FILES["COMPROBANTE_DE_DEVOLUCION"] == true or  $_FILES["NOTA_DE_CREDITO_COMPRA"] == true )){
 if($IPpagoprovee != ''){	
 //ECHO "AAAAAAAAAAAA1";
 //print_r($_POST);

@@ -193,7 +193,16 @@ function calcular() {
         });
     });
 }
-
+		             function setCurrentFillingDate() {
+                       const fechaInput = document.querySelector('input[name="FECHA_DE_LLENADO"]');
+                       if(!fechaInput) {
+                               return;
+                       }
+                       const now = new Date();
+                       const pad = (value) => value.toString().padStart(2, '0');
+                       const formatted = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+                       fechaInput.value = formatted;
+               }
 // Ejecutamos todo cuando cargue el DOM
 document.addEventListener("DOMContentLoaded", calcular);
 
@@ -262,7 +271,7 @@ $(document).on('change','input[type="checkbox"]' ,function(e) {
                  <tr  style="background: #d2faf1" > 
  
            
-                 <th scope="row"> <label  style="width:300px"  for="formFileSm"  class="form-label">ADJUNTAR FACTURA(FORMATO XML)</label></th>
+                 <th scope="row"> <label  style="width:300px"  for="formFileSm"  class="form-label">ADJUNTAR FACTURA FORMATO &nbsp;<a style="color:red;font:12px">(XML)</a></a><BR><a style="color:red;font:12px">SI NO TIENES POR EL MOMENTO EL ARCHIVO XML, <br>PRIMERO DEBES CAPTURAR EL NOMBRE COMERCIAL <br>Y DESPUÉS CARGAR EL PDF</a></label></th>
                  <td>
 				 
 	
@@ -359,7 +368,7 @@ if( file_exists($url) ){
              <tr  style="background: #d2faf1" >  
             
              
-                 <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">ADJUNTAR FACTURA (FORMATO PDF)</label></th>
+                 <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">ADJUNTAR FACTURA FORMATO (PDF)</label></th>
 				 
 				 
              <td>
@@ -396,7 +405,7 @@ while($rowsube=mysqli_fetch_array($listadosube)){
 
                  <tr  style="background:#fcf3cf"> 
                  <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">NOMBRE COMERCIAL</label></th>
-                 <td><input type="text" class="form-control" id="NOMBRE_COMERCIAL" required=""  value="<?php echo $NOMBRE_COMERCIAL; ?>" name="NOMBRE_COMERCIAL" placeholder="NOMBRE COMERCIAL"></td>
+                 <td><input type="text" class="form-control"  required=""  value="<?php echo $NOMBRE_COMERCIAL; ?>" name="NOMBRE_COMERCIAL" placeholder="NOMBRE COMERCIAL"></td>
                  </tr>
 				 
                  <tr style="background: #d2faf1"> 
@@ -508,7 +517,7 @@ var parametros = {
                  </tr>
                  <tr  style="background: #d2faf1">
                  
-                 <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">MOTIVO DEL GASTO:</label></th>
+                 <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">MOTIVO DEL GASTO:<br><a style="color:red;font-size:11px">OBLIGATORIO</a></label></th>
                  <td><input type="text" class="form-control" id="validationCustom03" required=""  value="<?php echo $MOTIVO_GASTO; ?>" name="MOTIVO_GASTO"placeholder="MOTIVO DEL GASTO "></td>
                  </tr>
                  <tr style="background:#fcf3cf"> 
@@ -602,7 +611,7 @@ var parametros = {
                  <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">TOTAL:</label></th>
                  <td>
 				 <div id="2MONTO_DEPOSITAR">
-             <div class="input-group mb-3"> <span class="input-group-text">$</span><input type="text" class="form-control" id="MONTO_DEPOSITAR" required=""   value="<?php echo $total; ?>" name="MONTO_DEPOSITAR"placeholder="TOTAL">
+             <div class="input-group mb-3"> <span class="input-group-text">$</span><input type="text" class="form-control" id="MONTO_DEPOSITAR" required=""   value="<?php echo $total; ?>" name="MONTO_DEPOSITAR"placeholder="TOTAL" readonly="readonly">
 				
 				 </td>
                  </tr> </div> </div>
@@ -670,7 +679,7 @@ var parametros = {
 
 
 
-<select name="PFORMADE_PAGO" class="form-select mb-3" id="PFORMADE_PAGO" aria-label="Default select example">
+<select name="PFORMADE_PAGO" class="form-select mb-3"  aria-label="Default select example">
 
     <option style="background:#dee6fc"  <?php if($formaDePago=='04'){echo "selected ";} ?> value="04">04 TARJETA DE CREDITO</option>
     <option style="background:#f2b4f5"  <?php if($formaDePago=='03'){echo "selected";} ?> value="03">03 TRANSFERENCIA ELECTRONICA DE FONDOS</option>
@@ -684,17 +693,7 @@ var parametros = {
     <option style="background:#f9e5fa" <?php if($formaDePago=='99'){echo "selected";} ?> value="99">99 OTRO</option>
 
 </select>
-<script>
-(function() {
-    var selectFP = document.getElementById('PFORMADE_PAGO');
-    if (!selectFP) return;
 
-    // Solo revisar cuando se inserta (venga de XML o de donde sea)
-    if (selectFP.value !== '04') {
-        alert('FAVOR DE SOLICITAR EL CAMBIO DE FACTURA POR NO COINCIDIR CON LA FORMA DE PAGO');
-    }
-})();
-</script>
 
 			  
         
@@ -709,7 +708,7 @@ var parametros = {
 				 
                  <tr style="background: #d2faf1"> 
 
-                 <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">FECHA  EFECTIVA DE PAGO:</label></th>
+                 <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">FECHA DE CARGO EN TDC<br><a style="color:red;font-size:11px">OBLIGATORIO</a></label></th>
                  <td><input type="date" class="form-control" id="validationCustom03" required=""  value="<?php echo $FECHA_A_DEPOSITAR; ?>" name="FECHA_A_DEPOSITAR" placeholder="FECHA A DEPOSITAR"></td>
                  </tr>
                                <tr  style="background:#fcf3cf" > 
@@ -759,15 +758,11 @@ while($rowsube=mysqli_fetch_array($listadosube)){
                  </tr>
 				 
 				 
-<tr  style="background: #d2faf1"> 
 
-<th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">PÓLIZA NÚMERO:</label></th>
-<td><input type="text" class="form-control" id="POLIZA_NUMERO" required=""  value="<?php echo $POLIZA_NUMERO;  ?>" name="POLIZA_NUMERO" placeholder="POLIZA NÚMERO"></td>
-</tr>
 
 <tr>
   <th style="background:#d2faf1;text-align:left" scope="col">
-    NOMBRE DEL EJECUTIVO TITULAR DE LA TARJETA:
+    NOMBRE DEL EJECUTIVO TITULAR DE LA TARJETA:<br><a style="color:red;font-size:11px">OBLIGATORIO</a>
   </th>
   <td style="background:#d2faf1">
     <?php
@@ -1017,8 +1012,7 @@ echo "<a target='_blank' href='includes/archivos/".$rowsube['ADJUNTAR_ARCHIVO_1'
 
 
 
-         
-         <input type="hidden" style="width:200px;"  class="form-control" id="validationCustom03"   value="<?php echo date('d-m-Y'); ?>" name="FECHA_DE_LLENADO">
+ <input type="hidden" style="width:200px;" class="form-control" id="validationCustom03" value="<?php echo date('d-m-Y H:i:s'); ?>" name="FECHA_DE_LLENADO">
      
             
 				
@@ -1190,8 +1184,8 @@ echo "<a target='_blank' href='includes/archivos/".$rowsube['ADJUNTAR_ARCHIVO_1'
                  <td><input type="text" class="form-control"  readonly="readonly" id="validationCustom03" required=""  value="<?php echo $Moneda; ?>" name="MONEDA_FACTURA" placeholder="MONEDA"></td>
                  </tr>
                  <tr>
-                    <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">MONEDA EXTRANGERA:</label></th>
-                 <td><input type="text" class="form-control"  readonly="readonly" id="validationCustom03" required=""  value="<?php echo $MONEDA_EXTRANGERA_FACTURA; ?>" name="MONEDA_EXTRNGERA_FACTURA" placeholder="MONEDA EXTRANGERA"></td>
+                    <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">MONEDA EXTRANJERA:</label></th>
+                 <td><input type="text" class="form-control"  readonly="readonly" id="validationCustom03" required=""  value="<?php echo $MONEDA_EXTRANGERA_FACTURA; ?>" name="MONEDA_EXTRNGERA_FACTURA" placeholder="MONEDA EXTRANJERA"></td>
                  </tr>
                  
 				 <tr>

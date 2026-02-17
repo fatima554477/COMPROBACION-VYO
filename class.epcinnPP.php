@@ -98,15 +98,17 @@ $variablequery = mysqli_query($conn,$variable);
 
 	public function solocargartemp($archivo)/*new file*/
 	{
+
 		$nombre_carpeta=__ROOT3__.'/includes/archivos';
 		$filehandle = opendir($nombre_carpeta);
 		$nombretemp = $_FILES[$archivo]["tmp_name"];
 		$nombrearchivo = $_FILES[$archivo]["name"];
 		$tamanyoarchivo = $_FILES[$archivo]["size"];
 		$tipoarchivo = getimagesize($nombretemp);
+        $nombrearchivo = basename($nombrearchivo);
 		$extension = explode('.',$nombrearchivo);
 		$cuenta = count($extension) - 1;
-		$nuevonombre =  $archivo.'_'.date('Y_m_d_h_i_s').'.'.$extension[$cuenta];
+		$nuevonombre = $nombrearchivo;
 		//echo '1aaaaaaaaaaaaaaaa2'.$extension[$cuenta].'1aaaaaaaaaaaaaaaa2';
 		
 		if( 
@@ -404,10 +406,7 @@ if($row['ultimo_id']==0 or $row['ultimo_id']==''){
 		$TImpuestosRetenidosIVA = str_replace(',','',$TImpuestosRetenidosIVA);		
 		$TImpuestosRetenidosISR = str_replace(',','',$TImpuestosRetenidosISR);		
 		$descuentos = str_replace(',','',$descuentos);		
-	//hiddensubefactura
-		/*$conn = $this->db(); STATUS_DE_PAGO
-		$existe = $this->revisar_pagoproveedor();
-		$session = isset($_SESSION['idCG'])?$_SESSION['idCG']:''; */
+
 		
 		$conn = $this->db();
 

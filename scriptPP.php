@@ -190,6 +190,23 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 
+<script>
+function verificarFormaDePago() {
+  var selectFP = document.getElementById('PFORMADE_PAGO');
+  if (!selectFP) {
+    return;
+  }
+
+  if (selectFP.value !== '04') {
+    alert('LA FORMA DE PAGO DE TU FACTURA ES DIFERENTE A 04 (TARJETA DE CREDITO) PEDIR REFACTURACIÓN');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', verificarFormaDePago);
+</script>
+
+
+
 
 
 <script type="text/javascript">
@@ -223,50 +240,56 @@ document.addEventListener("DOMContentLoaded", function() {
 $('#1'+nombre).html('<p style="color:green;">Cargando archivo!</p>');
 $('#mensajeADJUNTOCOL').html('<p style="color:green;">Actualizado!</p>');
     },				
-	            success:function(response) {
-if($.trim(response) == 2 ){
-$('#1'+nombre).html('<p style="color:red;">Error, archivo diferente a PDF, JPG o GIF.</p>');
-$('#'+nombre).val("");
-}
-else if($.trim(response) == 3 ){
-	$('#1'+nombre).html('<p style="color:red;">UUID PREVIAMENTE CARGADO.</p>');
-$('#'+nombre).val("");
-/*nuevo inicio*/
+success:function(response) {
+
+    // 1) Caso: UUID ya cargado
+    if ($.trim(response) == 3) {
+        $('#1' + nombre).html('<p style="color:red;">UUID PREVIAMENTE CARGADO.</p>');
+        $('#' + nombre).val("");
+        /*nuevo inicio*/
+    }
+
+    // 2) Caso: archivo no es XML
+    else if ($.trim(response) === 'El archivo debe estar en formato XML.') {
+        $('#1' + nombre).html('<p style="color:red;">' + $.trim(response) + '</p>');
+        $('#' + nombre).val("");
+    }
+
+    // 3) Caso: todo OK (respuesta correcta, subió archivo, etc.)
+    else {
+        // Si la respuesta es el nombre del archivo
+        $('#' + nombre).val(response);
+        $('#1' + nombre).html(
+            '<a target="_blank" href="includes/archivos/' + $.trim(response) + '"></a>'
+        );
+
+        /*nuevo inicio*/
+        $("#2ADJUNTAR_FACTURA_XML").load(location.href + " #2ADJUNTAR_FACTURA_XML");
+
+        if (nombre == 'ADJUNTAR_FACTURA_XML') {
+            // MONTO_FACTURA y demás campos
+            $('#RAZON_SOCIAL2').load(location.href + ' #RAZON_SOCIAL2');
+            $('#RFC_PROVEEDOR2').load(location.href + ' #RFC_PROVEEDOR2');
+            $('#CONCEPTO_PROVEE2').load(location.href + ' #CONCEPTO_PROVEE2');
+            $('#TIPO_DE_MONEDA2').load(location.href + ' #TIPO_DE_MONEDA2');
+            $('#FECHA_DE_PAGO2').load(location.href + ' #FECHA_DE_PAGO2');
+            $('#NUMERO_CONSECUTIVO_PROVEE2').load(location.href + ' #NUMERO_CONSECUTIVO_PROVEE2');
+            $('#2MONTO_FACTURA').load(location.href + ' #2MONTO_FACTURA');
+            $('#2MONTO_DEPOSITAR').load(location.href + ' #2MONTO_DEPOSITAR');
+            $('#2PFORMADE_PAGO').load(location.href + ' #2PFORMADE_PAGO');
+            $('#2IVA').load(location.href + ' #2IVA');
+            $('#2TImpuestosRetenidosIVA').load(location.href + ' #2TImpuestosRetenidosIVA');
+            $('#2TImpuestosRetenidosISR').load(location.href + ' #2TImpuestosRetenidosISR');
+            $('#2descuentos').load(location.href + ' #2descuentos');
+        }
+
+        $('#2' + nombre).load(location.href + ' #2' + nombre);
+        $("#resettabla").load(location.href + " #resettabla");
+        /*nuevo final 2PFORMADE_PAGO*/
+    }
 
 }
-else{
-$('#'+nombre).val(response);
-$('#1'+nombre).html('<a target="_blank" href="includes/archivos/'+$.trim(response)+'"></a>');
 
-/*nuevo inicio*/
-$("#2ADJUNTAR_FACTURA_XML").load(location.href + " #2ADJUNTAR_FACTURA_XML");
-if(nombre == 'ADJUNTAR_FACTURA_XML'){
-	//MONTO_FACTURA
-$('#RAZON_SOCIAL2').load(location.href + ' #RAZON_SOCIAL2');
-$('#RFC_PROVEEDOR2').load(location.href + ' #RFC_PROVEEDOR2');
-$('#CONCEPTO_PROVEE2').load(location.href + ' #CONCEPTO_PROVEE2');
-$('#TIPO_DE_MONEDA2').load(location.href + ' #TIPO_DE_MONEDA2');
-$('#FECHA_DE_PAGO2').load(location.href + ' #FECHA_DE_PAGO2');
-$('#NUMERO_CONSECUTIVO_PROVEE2').load(location.href + ' #NUMERO_CONSECUTIVO_PROVEE2');
-$('#2MONTO_FACTURA').load(location.href + ' #2MONTO_FACTURA');
-$('#2MONTO_DEPOSITAR').load(location.href + ' #2MONTO_DEPOSITAR');
-$('#2PFORMADE_PAGO').load(location.href + ' #2PFORMADE_PAGO');
-$('#2IVA').load(location.href + ' #2IVA');
-$('#2TImpuestosRetenidosIVA').load(location.href + ' #2TImpuestosRetenidosIVA');
-$('#2TImpuestosRetenidosISR').load(location.href + ' #2TImpuestosRetenidosISR');
-$('#2descuentos').load(location.href + ' #2descuentos');
-
-}
-
-			//$('#SUBIRFACTURAform').trigger("reset");
-			$('#2'+nombre).load(location.href + ' #2'+nombre);
-			$("#resettabla").load(location.href + " #resettabla");
-			
-/*nuevo final 2PFORMADE_PAGO*/
-
-}
-
-	            }
 	        });
 	    }
 	}
@@ -351,7 +374,15 @@ const numberWithCommas = (x) => {
 
 
 
-
+function actualizarFechaDeLlenado() {
+	const fechaInput = document.querySelector('input[name="FECHA_DE_LLENADO"]');
+	if (!fechaInput) {
+		return;
+	}
+	const now = new Date();
+	const pad = (value) => value.toString().padStart(2, '0');
+	fechaInput.value = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}
 
 
 	
@@ -363,7 +394,9 @@ $(document).ready(function(){
 
 $("#enviarPAGOPROVEEDORES").click(function(){
 	/*nuevo script pbajar archivos y datos*/
+	actualizarFechaDeLlenado();
 const formData = new FormData($('#pagoaproveedoresform')[0]);
+
 
 $.ajax({
     url: 'comprobaciones/controladorPP.php',
