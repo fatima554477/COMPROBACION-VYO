@@ -1,3 +1,36 @@
+<style>
+/* Loader con animación */
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #6a0dad; /* Morado elegante */
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Texto estilizado */
+.msg-actualizando {
+  font-weight: bold;
+  font-size: 20px;
+  color: #6a0dad;
+  background: #f3e9fb;
+  border-radius: 6px;
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+}
+</style>
+
 <script type="text/javascript">
 
 	function pasarpagado2(pasarpagado_id){
@@ -105,6 +138,7 @@
 	}
 	});
 }
+
 
 function STATUS_CHECKBOX(CHECKBOX_id, permisoModificar) {
     var checkBox = document.getElementById("STATUS_CHECKBOX" + CHECKBOX_id);
@@ -233,6 +267,8 @@ function recalcularTotal() {
 
 
 
+
+
 	function STATUS_AUDITORIA2(AUDITORIA2_id){
 	
 
@@ -253,7 +289,7 @@ function recalcularTotal() {
 		success:function(data){
 		var result = data.split('^');				
 		$('#pasarpagado2').html("Cargando...").fadeIn().delay(500).fadeOut();
-
+        load(1);
 		if(result[1]=='si'){
 		$('#color_AUDITORIA2'+AUDITORIA2_id).css('background-color', '#ceffcc');
 		}
@@ -265,7 +301,37 @@ function recalcularTotal() {
 	});
 }
 
+	function STATUS_AUDITORIA3(AUDITORIA3_id){
+	
 
+	var checkBox = document.getElementById("STATUS_AUDITORIA3"+AUDITORIA3_id);
+	var AUDITORIA3_text = "";
+	if (checkBox.checked == true){
+	AUDITORIA3_text = "si";
+	}else{
+	AUDITORIA3_text = "no";
+	}
+	  $.ajax({
+		url:'comprobaciones/controladorPP.php',
+		method:'POST',
+		data:{AUDITORIA3_id:AUDITORIA3_id,AUDITORIA3_text:AUDITORIA3_text},
+		beforeSend:function(){
+		$('#pasarpagado2').html('cargando');
+	},
+		success:function(data){
+		var result = data.split('^');				
+		$('#pasarpagado2').html("Cargando...").fadeIn().delay(500).fadeOut();
+        load(1);
+		if(result[1]=='si'){
+		$('#color_AUDITORIA3'+AUDITORIA3_id).css('background-color', '#ceffcc');
+		}
+		if(result[1]=='no'){
+		$('#color_AUDITORIA3'+AUDITORIA3_id).css('background-color', '#e9d8ee');
+		}		
+		
+	}
+	});
+}
 
 	function STATUS_FINANZAS(FINANZAS_id){
 
@@ -287,7 +353,7 @@ function recalcularTotal() {
 		success:function(data){
 		var result = data.split('^');				
 		$('#pasarpagado2').html("Cargando...").fadeIn().delay(500).fadeOut();
-		
+		load(1);
 		if(result[1]=='si'){
 		$('#color_FINANZAS'+FINANZAS_id).css('background-color', '#ceffcc');
 		}
@@ -297,6 +363,206 @@ function recalcularTotal() {
 		
 	}
 	});
+}
+
+
+function STATUS_RECHAZADO(RECHAZADO_id){
+
+	var $checkBox = $("#STATUS_RECHAZADO"+RECHAZADO_id);
+	if($checkBox.length === 0){
+		return;
+	}
+
+	var checkBox = $checkBox.get(0);
+	var estadoAnterior = $checkBox.data('estadoAnterior') || (checkBox.checked ? 'si' : 'no');
+
+	var RECHAZADO_text = checkBox.checked ? "si" : "no";
+
+	if(RECHAZADO_text === 'no'){
+		$checkBox.data('forzarAgregarMotivo', 'si');
+	} else if(RECHAZADO_text === 'si' && $checkBox.data('forzarAgregarMotivo') !== 'si'){
+		$checkBox.removeData('forzarAgregarMotivo');
+	}
+
+actualizarBotonesRechazo(RECHAZADO_id, RECHAZADO_text);
+
+
+	$.ajax({
+
+		url:'comprobaciones/controladorPP.php',
+
+	method:'POST',
+
+			data:{RECHAZADO_id:RECHAZADO_id,RECHAZADO_text:RECHAZADO_text},
+
+		beforeSend:function(){
+
+			$('#pasarpagado2').html('cargando');
+
+		},
+
+	success:function(data){
+
+				var result = (data || '').trim().split('^');
+
+				$('#pasarpagado2').html("Cargando...").fadeIn().delay(500).fadeOut();
+                  load(1);
+			
+	        if(result[1] == 'si' || result[1] == 'no'){
+					$checkBox.data('estadoAnterior', result[1]);
+					if(result[1] == 'si' && $checkBox.data('forzarAgregarMotivo') !== 'si'){
+						$checkBox.removeData('forzarAgregarMotivo');
+					}
+					actualizarBotonesRechazo(RECHAZADO_id, result[1]);
+				}else{
+					checkBox.checked = (estadoAnterior === 'si');
+					actualizarBotonesRechazo(RECHAZADO_id, estadoAnterior);
+				}
+
+			},
+
+			error:function(){
+				checkBox.checked = (estadoAnterior === 'si');
+				actualizarBotonesRechazo(RECHAZADO_id, estadoAnterior);
+			}
+
+		});
+
+}
+
+
+
+function abrirFormularioRechazo(RECHAZADO_id){
+	var motivoActual = $('#motivo_rechazo_'+RECHAZADO_id).val() || '';
+	$('#modal_rechazo_id').val(RECHAZADO_id);
+	configurarModalRechazo('editar', motivoActual, 'Captura el motivo y presiona Guardar.');
+
+	$('#btn_guardar_rechazo_modal').off('click').on('click', function(){
+		guardarMotivoRechazoModal();
+	});
+
+}
+
+
+function guardarMotivoRechazoModal(){
+	var RECHAZADO_id = $('#modal_rechazo_id').val();
+	var motivo = ($('#modal_rechazo_texto').val() || '').trim();
+
+	if(motivo === ''){
+		$('#modal_rechazo_mensaje').text('Debes capturar un motivo de rechazo.').css('color', '#b22222');
+		return;
+	}
+
+$.ajax({
+		url:'comprobaciones/controladorPP.php',
+		method:'POST',
+		data:{RECHAZO_MOTIVO_id:RECHAZADO_id,RECHAZO_MOTIVO_text:motivo},
+		success:function(resp){
+	if(resp.indexOf('ok') !== -1){
+				$('#motivo_rechazo_'+RECHAZADO_id).val(motivo);
+				$('#STATUS_RECHAZADO'+RECHAZADO_id).removeData('forzarAgregarMotivo');
+				actualizarBotonesRechazo(RECHAZADO_id);
+				$('#modal_rechazo_mensaje').text('Motivo guardado correctamente.').css('color', '#228b22');
+				setTimeout(function(){ cerrarModalRechazoPago(); }, 400);
+			}else{
+				$('#modal_rechazo_mensaje').text('No fue posible guardar el motivo.').css('color', '#b22222');
+			}
+		}
+	});
+}
+
+
+
+function verMotivoRechazo(RECHAZADO_id){
+
+	var motivoLocal = $('#motivo_rechazo_'+RECHAZADO_id).val() || '';
+	$('#modal_rechazo_id').val(RECHAZADO_id);
+
+	if(motivoLocal !== ''){
+		configurarModalRechazo('ver', motivoLocal, 'Consulta del motivo registrado.');
+
+		return;
+
+	}
+
+	$.ajax({
+
+		url:'comprobaciones/controladorPP.php',
+
+		method:'POST',
+
+		data:{RECHAZO_MOTIVO_VER_id:RECHAZADO_id},
+
+
+
+		success:function(resp){
+
+			var motivo = (resp || '').trim();
+
+			if(motivo !== ''){
+
+				$('#motivo_rechazo_'+RECHAZADO_id).val(motivo);
+				configurarModalRechazo('ver', motivo, 'Consulta del motivo registrado.');
+
+			}else{
+				configurarModalRechazo('ver', 'No hay motivo de rechazo registrado.', 'Consulta del motivo registrado.');
+
+			}
+
+		}
+
+
+	});
+
+}
+
+function configurarModalRechazo(modo, texto, mensaje){
+	var esVer = (modo === 'ver');
+	$('#modalRechazoPagoLabel').text(esVer ? 'Ver motivo del rechazo' : 'Agregar motivo del rechazo');
+	$('#modal_rechazo_texto').val(texto || '').prop('readonly', esVer);
+	$('#modal_rechazo_mensaje').text(mensaje || '').css('color', '#666');
+	$('#btn_guardar_rechazo_modal').toggle(!esVer);
+	mostrarModalRechazoPago();
+}
+
+function actualizarBotonesRechazo(RECHAZADO_id, statusRechazado){
+	var statusActual = statusRechazado;
+	if(typeof statusActual === 'undefined'){
+		statusActual = $('#STATUS_RECHAZADO'+RECHAZADO_id).is(':checked') ? 'si' : 'no';
+	}
+    var motivo = ($('#motivo_rechazo_'+RECHAZADO_id).val() || '').trim();
+	var forzarAgregarMotivo = ($('#STATUS_RECHAZADO'+RECHAZADO_id).data('forzarAgregarMotivo') === 'si');
+	var mostrarVer = (statusActual === 'si' && motivo !== '');
+	var mostrarAgregar = (statusActual === 'si' && (motivo === '' || forzarAgregarMotivo));
+
+	if(forzarAgregarMotivo && statusActual === 'si'){
+		mostrarVer = false;
+	}
+
+	$('#agregar_rechazo_'+RECHAZADO_id).toggle(mostrarAgregar);
+	$('#ver_rechazo_'+RECHAZADO_id).toggle(mostrarVer);
+}
+
+function mostrarModalRechazoPago(){
+	if($('#modalRechazoPago').length === 0){
+		return;
+	}
+	if(typeof $('#modalRechazoPago').modal === 'function'){
+		$('#modalRechazoPago').modal('show');
+	} else {
+		$('#modalRechazoPago').show();
+	}
+}
+
+function cerrarModalRechazoPago(){
+	if($('#modalRechazoPago').length === 0){
+		return;
+	}
+	if(typeof $('#modalRechazoPago').modal === 'function'){
+		$('#modalRechazoPago').modal('hide');
+	} else {
+		$('#modalRechazoPago').hide();
+	}
 }
 
 	function STATUS_VENTAS(VENTAS_id){
@@ -316,15 +582,25 @@ function recalcularTotal() {
 		beforeSend:function(){
 		$('#pasarpagado2').html('cargando');
 	},
-		success:function(data){
+	success:function(data){
 		var result = data.split('^');				
 		$('#pasarpagado2').html("Cargando...").fadeIn().delay(500).fadeOut();
-		
-		if(result[1]=='si'){
+		load(1);
+if(result[1]=='si'){
 		$('#color_VENTAS'+VENTAS_id).css('background-color', '#ceffcc');
+		$('#STATUS_RECHAZADO'+VENTAS_id)
+			.prop('disabled', true)
+			.css('cursor', 'not-allowed')
+			.attr('title', 'No se puede rechazar: autorizado por ventas');
+		actualizarBotonesRechazo(VENTAS_id);
 		}
 		if(result[1]=='no'){
 		$('#color_VENTAS'+VENTAS_id).css('background-color', '#e9d8ee');
+		$('#STATUS_RECHAZADO'+VENTAS_id)
+			.prop('disabled', false)
+			.css('cursor', 'pointer')
+			.attr('title', '');
+		actualizarBotonesRechazo(VENTAS_id);
 		}		
 		
 	}

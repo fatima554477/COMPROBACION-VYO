@@ -13,16 +13,30 @@ define("__ROOT1__", dirname(dirname(__FILE__)));
 	include_once (__ROOT1__."/../comprobaciones/class.epcinnPP.php");
 
 	
-	class orders extends accesoclase {
+class orders extends accesoclase {
 	public $mysqli;
 	public $counter;//Propiedad para almacenar el numero de registro devueltos por la consulta
+	private $matchCache = [];
+	private $matchAnyCache = [];
+	private $tarjetaCache = [];
+	private $plantillaFiltroCache = [];
+
 
 	function __construct(){
 		$this->mysqli = $this->db();
     }
+	public function plantilla_filtro($nombreTabla, $campo, $altaeventos, $departamento) {
+		$cacheKey = $nombreTabla.'|'.$campo.'|'.$altaeventos.'|'.$departamento;
+		if (isset($this->plantillaFiltroCache[$cacheKey])) {
+			return $this->plantillaFiltroCache[$cacheKey];
+		}
 
+		$resultado = parent::plantilla_filtro($nombreTabla, $campo, $altaeventos, $departamento);
+		$this->plantillaFiltroCache[$cacheKey] = $resultado;
 
-	/*se ocupa en MATCH_BBVA.php regresa checked*/
+		return $resultado;
+	}
+		/*se ocupa en MATCH_BBVA.php regresa checked*/
 	public function validaexistematch2COMPROBACION($IpMATCHDOCUMENTOS2,$TARJETA){
 		$conn = $this->db();		
 			$pregunta = 'select * from 12matchDocumentos where 
@@ -189,9 +203,25 @@ $sWhere2.="  $tables.MONTO_DE_COMISION LIKE '%".$search['MONTO_DE_COMISION']."%'
 if($search['POLIZA_NUMERO']!=""){
 $sWhere2.="  $tables.POLIZA_NUMERO LIKE '%".$search['POLIZA_NUMERO']."%' OR ";}
 if($search['NOMBRE_DEL_EJECUTIVO']!=""){
-$sWhere2.="  $tables.NOMBRE_DEL_EJECUTIVO LIKE '%".$search['NOMBRE_DEL_EJECUTIVO']."%' OR ";}
+$nombreEjecutivo = strtoupper($search['NOMBRE_DEL_EJECUTIVO']);
+$nombreEjecutivoEscapado = $this->mysqli->real_escape_string($nombreEjecutivo);
+
+$busquedaNombreEjecutivo = "SELECT idRelacion FROM 01informacionpersonal WHERE UPPER(CONCAT_WS(' ', NOMBRE_1, NOMBRE_2, APELLIDO_PATERNO, APELLIDO_MATERNO)) LIKE '%".$nombreEjecutivoEscapado."%'";
+
+$sWhere2.="  (UPPER($tables.NOMBRE_DEL_EJECUTIVO) LIKE '%".$nombreEjecutivoEscapado."%' OR $tables.NOMBRE_DEL_EJECUTIVO IN (".$busquedaNombreEjecutivo.")) OR ";}
 if($search['NOMBRE_DEL_AYUDO']!=""){
-$sWhere2.="  $tables.NOMBRE_DEL_AYUDO LIKE '%".$search['NOMBRE_DEL_AYUDO']."%' OR ";}
+$nombreAyudo = strtoupper($search['NOMBRE_DEL_AYUDO']);
+
+$nombreAyudoEscapado = $this->mysqli->real_escape_string($nombreAyudo);
+
+
+
+$busquedaNombreAyudo = "SELECT idRelacion FROM 01informacionpersonal WHERE UPPER(CONCAT_WS(' ', NOMBRE_1, NOMBRE_2, APELLIDO_PATERNO, APELLIDO_MATERNO)) LIKE '%".$nombreAyudoEscapado."%'";
+
+
+
+$sWhere2.="  (UPPER($tables.NOMBRE_DEL_AYUDO) LIKE '%".$nombreAyudoEscapado."%' OR $tables.NOMBRE_DEL_AYUDO IN (".$busquedaNombreAyudo.")) OR ";}
+
 if($search['OBSERVACIONES_1']!=""){
 $sWhere2.="  $tables.OBSERVACIONES_1 LIKE '%".$search['OBSERVACIONES_1']."%' OR ";}
 if($search['FECHA_DE_LLENADO']!=""){
@@ -343,15 +373,20 @@ IF($sWhere2!=""){
         $sWhere3 .= " order by ".$sWhere3campo;
 
 
-		$sql="SELECT $campos , 07COMPROBACION.id as 07COMPROBACIONid FROM $tables LEFT JOIN $tables2 $sWhere $sWhere3 LIMIT $offset,$per_page";
-		
-		 $query=$this->mysqli->query($sql);
-	     $sql1="SELECT $campos , 07COMPROBACION.id as 07COMPROBACIONid FROM  $tables LEFT JOIN $tables2 $sWhere $sWhere3 ";
-		$nums_row=$this->countAll($sql1);
-		
-		$this->setCounter($nums_row);
-		return $query;
-	}
+    $sql = "SELECT $campos, 07COMPROBACION.id as 07COMPROBACIONid 
+            FROM $tables LEFT JOIN $tables2 $sWhere $sWhere3 
+            LIMIT $offset,$per_page";
+    $query = $this->mysqli->query($sql);
+
+  
+    $sqlCount = "SELECT COUNT(*) as total 
+                 FROM $tables LEFT JOIN $tables2 $sWhere $sWhere3";
+    $resultCount = $this->mysqli->query($sqlCount);
+    $rowCount = $resultCount->fetch_assoc();
+    $this->setCounter($rowCount['total']);
+
+    return $query;
+}
 	    function setCounter($counter) {
 		$this->counter = $counter;
 	}
