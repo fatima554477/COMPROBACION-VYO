@@ -17,13 +17,24 @@ fecha fatima: 03/JUNIO/2025
 	use PHPMailer\PHPMailer\SMTP;
 	use PHPMailer\PHPMailer\Exception;
 	require  __ROOT2__.'/PHPMailer-master/vendor/autoload.php';	
-	class herramientas extends PHPMailer{
+class herramientas extends PHPMailer{
+
+	private static $smtpCacheByRelacion = array();
+	private static $smtpCacheById = array();
+
 
 	public function array_smtp_ID($conn,$id){
+		if(isset(self::$smtpCacheByRelacion[$id])){
+			return self::$smtpCacheByRelacion[$id];
+		}
 
 		$variablequery = "select * from 03datossmtp where idRelacion = '".$id."' limit 1 ";
 		$arrayquery = mysqli_query($conn,$variablequery);
 		$row = mysqli_fetch_array($arrayquery, MYSQLI_ASSOC);
+		if(!$row){
+			self::$smtpCacheByRelacion[$id] = array();
+			return self::$smtpCacheByRelacion[$id];
+		}
 		$host['Host'] = $row['Host'];
 		$host['Username'] = $row['Username'];
 		$host['Passwordd'] = $row['Passwordd'];
@@ -31,16 +42,24 @@ fecha fatima: 03/JUNIO/2025
 		$host['Port'] = $row['Port'];
 		$host['setFrom1'] = $row['setFrom1'];
 		$host['setFrom2'] = $row['setFrom2'];
-		$host['prefijo'] = $row['prefijo'];
+	    $host['prefijo'] = $row['prefijo'];
 		$host['idRelacion'] = $row['idRelacion'];
+		self::$smtpCacheByRelacion[$id] = $host;
 		return $host;
 	}
 
 	public function array_smtp_PREFIJO($conn,$id){
+		if(isset(self::$smtpCacheById[$id])){
+			return self::$smtpCacheById[$id];
+		}
 
 		$variablequery = "select * from 03datossmtp where id = '".$id."' limit 1 ";
 		$arrayquery = mysqli_query($conn,$variablequery);
 		$row = mysqli_fetch_array($arrayquery, MYSQLI_ASSOC);
+		if(!$row){
+			self::$smtpCacheById[$id] = array();
+			return self::$smtpCacheById[$id];
+		}
 		$host['Host'] = $row['Host'];
 		$host['Username'] = $row['Username'];
 		$host['Passwordd'] = $row['Passwordd'];
@@ -48,8 +67,9 @@ fecha fatima: 03/JUNIO/2025
 		$host['Port'] = $row['Port'];
 		$host['setFrom1'] = $row['setFrom1'];
 		$host['setFrom2'] = $row['setFrom2'];
-		$host['prefijo'] = $row['prefijo'];
+	    $host['prefijo'] = $row['prefijo'];
 		$host['idRelacion'] = $row['idRelacion'];
+		self::$smtpCacheById[$id] = $host;
 		return $host;
 	}
 	
@@ -77,6 +97,8 @@ fecha fatima: 03/JUNIO/2025
 
 	public function email($emails1nombre, $html, $adjuntos, $embebida, $Subject=FALSE, $arrayhost=false){
 	try {
+		$this->clearAllRecipients();
+		$this->clearAttachments();
     //Server settings
     //$this->SMTPDebug = SMTP::DEBUG_SERVER;
 		$this->isSMTP();
@@ -109,13 +131,7 @@ fecha fatima: 03/JUNIO/2025
 
 	}
 
-		/*$this->Host       = 'smtp.hostinger.com';
-		$this->SMTPAuth   = true;
-		$this->Username   = 'prueba3@epcinn.com';
-		$this->Password   = 'Nni@12345';
-		$this->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-		$this->Port       = 465;
-		$this->setFrom('prueba3@epcinn.com', 'Administración');*/
+
 
 		if($Host != ''){
 		$this->Host       = $Host;
@@ -125,18 +141,13 @@ fecha fatima: 03/JUNIO/2025
 		$this->Port       = $Port;
 		$this->setFrom($setFrom1, $setFrom2);
 		}else{
-	$conexionsmtp = new ambientetrabajo();
+$conexionsmtp = new ambientetrabajo();
 	$host_smtp = $this->array_smtp_PREFIJO($conexionsmtp->db(),'1');
+	if(empty($host_smtp)){
+		return 'No se encontró configuración SMTP';
+	}
 			
-		/*$host['Host'] = $row['Host'];
-		$host['Username'] = $row['Username'];
-		$host['Passwordd'] = $row['Passwordd'];
-		$host['SMTPSecure'] = $row['SMTPSecure'];
-		$host['Port'] = $row['Port'];
-		$host['setFrom1'] = $row['setFrom1'];
-		$host['setFrom2'] = $row['setFrom2'];
-		$host['prefijo'] = $row['prefijo'];
-		$host['idRelacion'] = $row['idRelacion'];*/
+
 		
 		$this->Host       = $host_smtp['Host'];//'smtp.office365.com';
 		$this->Username   = $host_smtp['Username'];//'epconvenciones@epconvenciones.com.mx';
@@ -146,16 +157,21 @@ fecha fatima: 03/JUNIO/2025
 		$this->setFrom($host_smtp['setFrom1'],$host_smtp['setFrom2']);
 		}
 		//echo $this->Username;
-		foreach($emails1nombre as $etiqueta => $valor){
+       foreach($emails1nombre as $etiqueta => $valor){
 		$explotado = explode(';',$etiqueta);
-		$cuenta = count($explotado) - 1;
-		if($cuenta>=1){
-		for($ioa=0;$ioa<=$cuenta;$ioa++){
-			$this->addAddress($explotado[$ioa]);
+		$cuenta = count($explotado);
+		if($cuenta>1){
+		for($ioa=0;$ioa<$cuenta;$ioa++){
+			$destinatario = trim($explotado[$ioa]);
+			if($destinatario !== ''){
+				$this->addAddress($destinatario);
+			}
 		}
 		}else{
-
-			$this->addAddress($etiqueta, $valor);	
+			$destinatario = trim($etiqueta);
+			if($destinatario !== ''){
+				$this->addAddress($destinatario, $valor);
+			}
 		}
 		}
 
@@ -1072,8 +1088,15 @@ Insurgentes Sur 1377 - 3 Col. Insurgentes Mixcoac Benito Juárez, CDMX, México 
 </html>';
 	}
 		
-	public function revisar_usuario($conn,$USUARIO_CRM,$id){
+public function revisar_usuario($conn,$USUARIO_CRM,$id){
 		$var1 = 'select id, USUARIO_CRM from 01empresa where USUARIO_CRM =  "'.trim($USUARIO_CRM).'" and id = "'.$id.'" ';
+		$query = mysqli_query($conn,$var1) or die('P44'.mysqli_error($conn));
+		$row = mysqli_fetch_array($query, MYSQLI_ASSOC);
+		return $row['id'];
+	}	
+
+	public function revisar_usuario_existente($conn,$USUARIO_CRM){
+		$var1 = 'select id from 01empresa where USUARIO_CRM =  "'.trim($USUARIO_CRM).'" limit 1';
 		$query = mysqli_query($conn,$var1) or die('P44'.mysqli_error($conn));
 		$row = mysqli_fetch_array($query, MYSQLI_ASSOC);
 		return $row['id'];
@@ -1389,6 +1412,16 @@ Insurgentes Sur 1377 - 3 Col. Insurgentes Mixcoac Benito Juárez, CDMX, México 
 	$Subject = 'Favor de Completar el Formulario';
 	$conexion = new herramientas();
 	
+	$usuario_existente = $this->revisar_usuario_existente($conn,$USUARIO_CRM);
+	if($idrow=='' && $usuario_existente!=''){
+		echo '<span style="color:red; font-size:25px;font-weight:bold;">EL USUARIO CRM YA EXISTE, FAVOR DE USAR OTRO.</span>';
+		return;
+	}
+	if($idrow!='' && $usuario_existente!='' && $usuario_existente!=$idrow){
+		echo '<span style="color:red; font-size:25px;font-weight:bold;">EL USUARIO CRM YA ESTÁ ASIGNADO A OTRO COLABORADOR.</span>';
+		return;
+	}
+
 	$existe = $this->revisar_usuario($conn,$USUARIO_CRM, $idrow);
 	$idwebc = '';
 	if($existe==''){
@@ -3598,35 +3631,74 @@ public function guardarcategoriainventario ( $I_CATEGORIAS , $ICATEGORIAS ){
 	}
 
 
-	public function variablespermisos($MMMMMM,$idtablapersmiso,$CAMPO){
-		$conn = $this->db();
-		if($_SESSION['idempermiso']==true){
-		$VARempresa = 'select PERMISOS from 01empresa where id = "'.$_SESSION['idempermiso'].'" ';
-		}
+  private $cache_variablespermisos = [];
+    private $cache_departamento_permiso = null;
 
-		if($_SESSION['idPROVpermiso']==true){
-		$VARempresa = 'select PERMISOS from 02usuarios where id = "'.$_SESSION['idPROVpermiso'].'" ';
-		}
 
-		if($_SESSION['idcpermiso']==true){
-		$VARempresa = 'select PERMISOS from 06usuarios where id = "'.$_SESSION['idcpermiso'].'" ';
-		}
-		
-		$queryempresa = mysqli_query($conn,$VARempresa) or die('2978P44'.mysqli_error($conn));
-		$rowempresa = mysqli_fetch_array($queryempresa, MYSQLI_ASSOC);		
 
-		$rowempresa['PERMISOS'];
-		$var1 = 'select '.$CAMPO.' from 05permisosindex where 
-		pagina = "'.$idtablapersmiso.'" AND departamento = "'.$rowempresa['PERMISOS'].'" ';
-		$query = mysqli_query($conn,$var1) or die('P44'.mysqli_error($conn));
-		$row = mysqli_fetch_array($query, MYSQLI_ASSOC);
-		if($_SESSION['idempermiso']=='20' or $_SESSION['idempermiso']=='1'){
-		return "si";	
-		}else{
-		return $row[$CAMPO];
-		}
-		//RETURN 'si';
-	}
+
+
+
+    public function variablespermisos($MMMMMM, $idtablapersmiso, $CAMPO){
+
+        // Administradores siempre tienen acceso total - no necesitan consulta
+        if(isset($_SESSION['idempermiso']) && ($_SESSION['idempermiso'] == '20' || $_SESSION['idempermiso'] == '1')){
+            return "si";
+        }
+
+        // Clave única para este permiso
+        $cacheKey = $idtablapersmiso . '|' . $CAMPO;
+        if(isset($this->cache_variablespermisos[$cacheKey])){
+            return $this->cache_variablespermisos[$cacheKey];
+        }
+
+        $conn = $this->db();
+
+        if($this->cache_departamento_permiso === null){
+            $VARempresa = '';
+
+            if(!empty($_SESSION['idempermiso'])){
+                $VARempresa = 'select PERMISOS from 01empresa where id = "'.$_SESSION['idempermiso'].'" ';
+            } elseif(!empty($_SESSION['idPROVpermiso'])){
+                $VARempresa = 'select PERMISOS from 02usuarios where id = "'.$_SESSION['idPROVpermiso'].'" ';
+            } elseif(!empty($_SESSION['idcpermiso'])){
+                $VARempresa = 'select PERMISOS from 06usuarios where id = "'.$_SESSION['idcpermiso'].'" ';
+            }
+
+            if(empty($VARempresa)){
+                $this->cache_variablespermisos[$cacheKey] = "no";
+                return "no";
+            }
+
+            $queryempresa = mysqli_query($conn, $VARempresa) or die('2978P44'.mysqli_error($conn));
+            $rowempresa = mysqli_fetch_array($queryempresa, MYSQLI_ASSOC);
+            $this->cache_departamento_permiso = isset($rowempresa['PERMISOS']) ? $rowempresa['PERMISOS'] : '';
+        }
+
+        if($this->cache_departamento_permiso === ''){
+            $this->cache_variablespermisos[$cacheKey] = "no";
+            return "no";
+        }
+
+        $campoSeguro = preg_replace('/[^a-zA-Z0-9_]/', '', (string)$CAMPO);
+        if($campoSeguro === ''){
+            $this->cache_variablespermisos[$cacheKey] = "no";
+            return "no";
+        }
+
+        $var1 = 'select '.$campoSeguro.' from 05permisosindex where 
+        pagina = "'.$idtablapersmiso.'" AND departamento = "'.$this->cache_departamento_permiso.'" ';
+        $query = mysqli_query($conn, $var1) or die('P44'.mysqli_error($conn));
+        $row = mysqli_fetch_array($query, MYSQLI_ASSOC);
+
+        $resultado = isset($row[$campoSeguro]) ? $row[$campoSeguro] : "no";
+
+        // Guardar en cache
+        $this->cache_variablespermisos[$cacheKey] = $resultado;
+
+        return $resultado;
+    }
+
 
     public function lista_plantillas2() {
     $conn = $this->db();
