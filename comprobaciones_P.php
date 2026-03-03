@@ -14,8 +14,8 @@ $_SESSION['id_P'] = $idget;
 
 
 
-	require "comprobacionesVYO/controladorPP.php";
-	require "comprobacionesVYO/variablesPP.php";
+	require "comprobaciones/controladorPP.php";
+	require "comprobaciones/variablesPP.php";
 	
 	
 ?><!doctype html>
@@ -33,12 +33,12 @@ $_SESSION['id_P'] = $idget;
    <!--<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="altaeventos/typeahead.js"></script>-->
 
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+  <script src="assets/js/jquery.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+
 	
-	
-	
+		
 	<style>
 	
 
@@ -201,7 +201,7 @@ td ,tr, table, textarea {
 }
 
         </style>
-    <title>COMPROBACIÓN DE GASTOS VENTAS Y OPERACIONES</title>
+    <title>COMPROBACIÓN DE GASTOS</title>
   </head>
   <body>
     
@@ -216,7 +216,7 @@ td ,tr, table, textarea {
 
         <!--start top header-->
           <header class="top-header">
-		  <?php require "comprobacionesVYO/notificaciones.php"; /*php notificaciones*/ ?>
+		  <?php require "comprobaciones/notificaciones.php"; /*php notificaciones*/ ?>
           </header>
         <!--end top header-->
 
@@ -228,7 +228,7 @@ td ,tr, table, textarea {
 
           <!--start breadcrumb-->
           <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-		  <?php require "comprobacionesVYO/mapeo1.php"; /*php mapa*/ ?>
+		  <?php require "comprobaciones/mapeo1.php"; /*php mapa*/ ?>
           </div>
           <!--end breadcrumb
 <input type="text" class="form-control" id="NUMERO_EVENTO" required=""  value="<?php echo $NUMERO_EVENTO; ?>" name="NUMERO_EVENTO"  placeholder="No. DE EVENTO">-->
@@ -240,12 +240,13 @@ td ,tr, table, textarea {
 
 <?php
  require "pagoproveedores/texto.php";
- /*require "comprobacionesVYO/expansores.php";*/
- if($conexion->variablespermisos('','comprobacionVYO','ver')=='si'){
- require "comprobacionesVYO/comprobacionesVYO.php";
- }
- require "comprobacionesVYO/fetch_page_nuevo.php";
+ /*require "comprobaciones/expansores.php";*/
  
+if($conexion->variablespermisos('','COMPROBACIONES_GASTOS','ver')=='si'){
+
+ require "comprobaciones/COMPROBACIONES.php";
+ require "comprobaciones/fetch_page_nuevo.php";
+ }
  ?>
 				 
 
@@ -277,26 +278,23 @@ td ,tr, table, textarea {
      </div>
   <!--end wrapper-->
 
-
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <script src="assets/bootstrap/js/jquery.min.js"></script>
     <script src="//code.angularjs.org/snapshot/angular.min.js"></script>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="js/jspdf.umd.min.js"></script> 
     <script src="js/html2canvas.min.js"></script> 
     <script src="js/convertir.js"></script>                
     <script src="html2pdf.bundle.min.js"></script>
     <script src="colaboradores/script.js"></script> 
-    <script src="assets/js/jquery.min.js"></script>
-     <?php require "includes/convertirma.php"; ?>
-	   <?php require "comprobacionesVYO/scriptPP.php"; ?>
-
-    <script src="assets/plugins/simplebar/js/simplebar.min.js"></script>
+    <?php require "includes/convertirma.php"; ?>
+	<?php require "comprobaciones/scriptPP.php"; ?>
+   <script src="assets/plugins/simplebar/js/simplebar.min.js"></script>
     <script src="assets/plugins/metismenu/js/metisMenu.min.js"></script>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script src="assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
     <script src="assets/js/main.js"></script>
+
+
+
 
      </body>
      </html>
