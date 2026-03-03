@@ -206,6 +206,52 @@ function calcular() {
 // Ejecutamos todo cuando cargue el DOM
 document.addEventListener("DOMContentLoaded", calcular);
 
+function tieneAdjuntoFactura(campo) {
+	var contenedorHistorico = document.getElementById('2' + campo);
+	var contenedorActual = document.getElementById('1' + campo);
+	var totalAdjuntos = 0;
+
+	if (contenedorHistorico) {
+		totalAdjuntos += contenedorHistorico.querySelectorAll('a[href]').length;
+	}
+
+	if (contenedorActual) {
+		totalAdjuntos += contenedorActual.querySelectorAll('a[href]').length;
+	}
+
+	return totalAdjuntos > 0;
+}
+
+function validarUnSoloAdjuntoFactura(campo) {
+	if (tieneAdjuntoFactura(campo)) {
+		alert('Solo se permite un archivo para ' + campo + '. Si deseas reemplazarlo, primero bórralo.');
+		return false;
+	}
+
+	return true;
+}
+
+function file_explorer_factura(campo) {
+	if (!validarUnSoloAdjuntoFactura(campo)) {
+		return false;
+	}
+
+	file_explorer(campo);
+	return true;
+}
+
+function upload_file_factura(event, campo) {
+	if (!validarUnSoloAdjuntoFactura(campo)) {
+		if (event) {
+			event.preventDefault();
+		}
+		return false;
+	}
+
+	upload_file(event, campo);
+	return true;
+}
+
 
 $(document).on('change','input[type="checkbox"]' ,function(e) {
     if(this.id=="MONTO_DEPOSITAR1") {
@@ -276,9 +322,9 @@ $(document).on('change','input[type="checkbox"]' ,function(e) {
 				 
 	
 
-		<div id="drop_file_zone" ondrop="upload_file(event,'ADJUNTAR_FACTURA_XML')" ondragover="return false" >
+	<div id="drop_file_zone" ondrop="upload_file_factura(event,'ADJUNTAR_FACTURA_XML')" ondragover="return false" >
 		<p>Suelta aquí o busca tu archivo</p>
-		<p><input class="form-control form-control-sm" id="ADJUNTAR_FACTURA_XML" type="text" onkeydown="return false" onclick="file_explorer('ADJUNTAR_FACTURA_XML');"  VALUE="<?php echo $ADJUNTAR_FACTURA_XML; ?>" required /></p>
+		<p><input class="form-control form-control-sm" id="ADJUNTAR_FACTURA_XML" type="text" onkeydown="return false" onclick="file_explorer_factura('ADJUNTAR_FACTURA_XML');"  VALUE="<?php echo $ADJUNTAR_FACTURA_XML; ?>" required /></p>
 		<input type="file" name="ADJUNTAR_FACTURA_XML" id="nono"/>
 		<div id="1ADJUNTAR_FACTURA_XML">
 		<?php
@@ -375,9 +421,9 @@ if( file_exists($url) ){
       
 
 
-             <div id="drop_file_zone" ondrop="upload_file(event,'ADJUNTAR_FACTURA_PDF')" ondragover="return false" >
+     <div id="drop_file_zone" ondrop="upload_file_factura(event,'ADJUNTAR_FACTURA_PDF')" ondragover="return false" >
 		<p>Suelta aquí o busca tu archivo</p>
-		<p><input class="form-control form-control-sm" id="ADJUNTAR_FACTURA_PDF" type="text" onkeydown="return false" onclick="file_explorer('ADJUNTAR_FACTURA_PDF');"  VALUE="<?php echo $ADJUNTAR_FACTURA_PDF; ?>" required /></p>
+		<p><input class="form-control form-control-sm" id="ADJUNTAR_FACTURA_PDF" type="text" onkeydown="return false" onclick="file_explorer_factura('ADJUNTAR_FACTURA_PDF');"  VALUE="<?php echo $ADJUNTAR_FACTURA_PDF; ?>" required /></p>
 		<input type="file" name="ADJUNTAR_FACTURA_PDF" id="nono"/>
 		<div id="1ADJUNTAR_FACTURA_PDF">
 		<?php
