@@ -6,170 +6,50 @@
 
 define('__ROOT1__', dirname(dirname(__FILE__)));
 include_once (__ROOT1__."/includes/error_reporting.php");
-include_once (__ROOT1__."/comprobaciones/class.epcinnPP.php");
+include_once (__ROOT1__."/comprobacionesVYO/class.epcinnPP.php");
 
 $pagoproveedores= NEW accesoclase();
 $conexion = NEW colaboradores();
 $conexion2 = new herramientas();
-
+                                               
 
 $hiddenpagoproveedores = isset($_POST["hiddenpagoproveedores"])?$_POST["hiddenpagoproveedores"]:"";
 $validaDATOSBANCARIOS1 = isset($_POST["validaDATOSBANCARIOS1"])?$_POST["validaDATOSBANCARIOS1"]:"";
 $ENVIARRdatosbancario1p = isset($_POST["ENVIARRdatosbancario1p"])?$_POST["ENVIARRdatosbancario1p"]:"";
 $borrapagoaproveedores = isset($_POST["borrapagoaproveedores"])?$_POST["borrapagoaproveedores"]:"";
 $borra_datos_bancario1 = isset($_POST["borra_datos_bancario1"])?$_POST["borra_datos_bancario1"]:"";
-$ENVIARPAGOprovee = isset($_POST["ENVIARPAGOprovee"])?$_POST["ENVIARPAGOprovee"]:"";
-$borrasb = isset($_POST["borrasb"])?$_POST["borrasb"]:"";
+$ENVIARPAGOprovee = isset($_POST["ENVIARPAGOprovee"])?$_POST["ENVIARPAGOprovee"]:""; 
+$borrasb = isset($_POST["borrasb"])?$_POST["borrasb"]:""; 
 $borrasbdoc = isset($_POST["borrasbdoc"])?$_POST["borrasbdoc"]:"";
-$reset_historial_xml = isset($_POST["reset_historial_xml"])?$_POST["reset_historial_xml"]:"";
 
-if($reset_historial_xml == '1' or $reset_historial_xml == 'true'){
-        $idRelacionHistorial = isset($_SESSION["idCG"])?$_SESSION["idCG"]:"";
-        if($idRelacionHistorial != ''){
-                $pagoproveedores->limpiar_historial_factura_xml($idRelacionHistorial,__ROOT1__.'/includes/archivos/');
-                echo "Historial limpiado";
-        }else{
-                echo "Sin relacion";
-        }
-        exit;
-}
-
+$pasarpagado_text = isset($_POST["pasarpagado_text"])?$_POST["pasarpagado_text"]:"";
+$pasarpagado_id = isset($_POST["pasarpagado_id"])?$_POST["pasarpagado_id"]:"";
 
 	$busqueda = isset($_POST["busqueda"])?$_POST["busqueda"]:"";
 $q = isset($_POST["q"])?$_POST["q"]:"";
 
 $action = isset($_POST["action"])?$_POST["action"]:"";
 if($action=='ajax'){
-        $NUMERO_EVENTO = isset($_POST["NUMERO_EVENTO"])?$_POST["NUMERO_EVENTO"]:"";
-        echo $resultado = $pagoproveedores->buscarnombre($NUMERO_EVENTO);
+	$NUMERO_EVENTO = isset($_POST["NUMERO_EVENTO"])?$_POST["NUMERO_EVENTO"]:"";
+	echo $resultado = $pagoproveedores->buscarnombre($NUMERO_EVENTO);
 }
+
 
 if(!empty($_FILES["ADJUNTAR_FACTURA_XML"]["name"])){
         $extensionFactura = strtolower(pathinfo($_FILES["ADJUNTAR_FACTURA_XML"]["name"], PATHINFO_EXTENSION));
         if($extensionFactura !== 'xml'){
-                echo "El archivo debe estar en formato XML.";
+                echo "EL ARCHIVO DEBE ESTAR EN FORMATO XML.";
                 exit;
         }
 }
-
 if($q==true){
-        $json = [];
-        $json = $pagoproveedores->buscarnumero2($q);
-         echo json_encode($json);
+	$json = [];
+	$json = $pagoproveedores->buscarnumero2($q);
+	 echo json_encode($json);	
 }
 
 
 
-$pasarpagado_text = isset($_POST["pasarpagado_text"])?$_POST["pasarpagado_text"]:"";
-$pasarpagado_id = isset($_POST["pasarpagado_id"])?$_POST["pasarpagado_id"]:"";
-
-
-$busqueda = isset($_POST["busqueda"])?$_POST["busqueda"]:"";
-
-
-$AUDITORIA1_id = isset($_POST["AUDITORIA1_id"])?$_POST["AUDITORIA1_id"]:"";
-$AUDITORIA1_text = isset($_POST["AUDITORIA1_text"])?$_POST["AUDITORIA1_text"]:"";
-
-if($AUDITORIA1_id!='' and ($AUDITORIA1_text=='si' or $AUDITORIA1_text=='no') ){	
-echo $pagoproveedores->ACTUALIZA_AUDITORIA1 ($AUDITORIA1_id , $AUDITORIA1_text  );
-}
-
-
-$AUDITORIA2_id = isset($_POST["AUDITORIA2_id"])?$_POST["AUDITORIA2_id"]:"";
-$AUDITORIA2_text = isset($_POST["AUDITORIA2_text"])?$_POST["AUDITORIA2_text"]:"";
-
-if($AUDITORIA2_id!='' and ($AUDITORIA2_text=='si' or $AUDITORIA2_text=='no') ){	
-echo $pagoproveedores->ACTUALIZA_AUDITORIA2 ($AUDITORIA2_id , $AUDITORIA2_text  );
-}
-
-$AUDITORIA3_id = isset($_POST["AUDITORIA3_id"])?$_POST["AUDITORIA3_id"]:"";
-$AUDITORIA3_text = isset($_POST["AUDITORIA3_text"])?$_POST["AUDITORIA3_text"]:"";
-
-if($AUDITORIA3_id!='' and ($AUDITORIA3_text=='si' or $AUDITORIA3_text=='no') ){	
-echo $pagoproveedores->ACTUALIZA_AUDITORIA3 ($AUDITORIA3_id , $AUDITORIA3_text  );
-}
-
-
-
-$VENTAS_id = isset($_POST["VENTAS_id"])?$_POST["VENTAS_id"]:"";
-$VENTAS_text = isset($_POST["VENTAS_text"])?$_POST["VENTAS_text"]:"";
-
-if($VENTAS_id!='' and ($VENTAS_text=='si' or $VENTAS_text=='no') ){	
-echo $pagoproveedores->ACTUALIZA_VENTAS ($VENTAS_id , $VENTAS_text  );
-}
-
-$FINANZAS_id = isset($_POST["FINANZAS_id"])?$_POST["FINANZAS_id"]:"";
-$FINANZAS_text = isset($_POST["FINANZAS_text"])?$_POST["FINANZAS_text"]:"";
-
-if($FINANZAS_id!='' and ($FINANZAS_text=='si' or $FINANZAS_text=='no') ){	
-echo $pagoproveedores->ACTUALIZA_FINANZAS ($FINANZAS_id , $FINANZAS_text  );
-}
-
-
-
-$CHECKBOX_id = isset($_POST["CHECKBOX_id"]) ? $_POST["CHECKBOX_id"] : "";
-$CHECKBOX_text = isset($_POST["CHECKBOX_text"]) ? $_POST["CHECKBOX_text"] : "";
-
-if($CHECKBOX_id != '' && ($CHECKBOX_text == 'si' || $CHECKBOX_text == 'no')) {
-    // Primero: ejecutar la actualización en la base de datos
-    echo $pagoproveedores->ACTUALIZA_CHECKBOX($CHECKBOX_id, $CHECKBOX_text);
-    
- 
-}
-
-
-
-$RECHAZADO_id = isset($_POST["RECHAZADO_id"])?$_POST["RECHAZADO_id"]:"";
-
-$RECHAZADO_text = isset($_POST["RECHAZADO_text"])?$_POST["RECHAZADO_text"]:"";
-
-
-
-if($RECHAZADO_id!='' and ($RECHAZADO_text=='si' or $RECHAZADO_text=='no') ){
-
-echo $pagoproveedores->ACTUALIZA_RECHAZADO($RECHAZADO_id, $RECHAZADO_text);
-
-exit;
-
-}
-
-
-$RECHAZO_MOTIVO_id = isset($_POST["RECHAZO_MOTIVO_id"])?$_POST["RECHAZO_MOTIVO_id"]:"";
-
-$RECHAZO_MOTIVO_text = isset($_POST["RECHAZO_MOTIVO_text"])?$_POST["RECHAZO_MOTIVO_text"]:"";
-
-
-
-if($RECHAZO_MOTIVO_id!='' and trim($RECHAZO_MOTIVO_text) != ''){
-
-	echo $pagoproveedores->guardar_motivo_rechazo($RECHAZO_MOTIVO_id, $RECHAZO_MOTIVO_text);
-
-	exit;
-
-}
-
-
-
-$RECHAZO_MOTIVO_VER_id = isset($_POST["RECHAZO_MOTIVO_VER_id"])?$_POST["RECHAZO_MOTIVO_VER_id"]:"";
-
-if($RECHAZO_MOTIVO_VER_id!=''){
-
-	echo $pagoproveedores->obtener_motivo_rechazo($RECHAZO_MOTIVO_VER_id);
-
-	exit;
-
-}
-
-
-
-
-
-$RESPONSABLE_EVENTO_id = isset($_POST["RESPONSABLE_EVENTO_id"])?$_POST["RESPONSABLE_EVENTO_id"]:"";
-$RESPONSABLE_text = isset($_POST["RESPONSABLE_text"])?$_POST["RESPONSABLE_text"]:"";
-
-if($RESPONSABLE_EVENTO_id!='' and ($RESPONSABLE_text=='si' or $RESPONSABLE_text=='no') ){	
-echo $pagoproveedores->ACTUALIZA_RESPONSABLE_EVENTO ($RESPONSABLE_EVENTO_id , $RESPONSABLE_text  );
-}
 
 if($busqueda==true){
 
@@ -180,27 +60,6 @@ if($busqueda==true){
 
 if($pasarpagado_id!='' and ($pasarpagado_text=='si' or $pasarpagado_text=='no') ){	
 echo $pagoproveedores->PASARPAGADOACTUALIZAR ($pasarpagado_id , $pasarpagado_text  );
-}
-
-
-$action = isset($_POST["action"])?$_POST["action"]:"";
-if($action=='total_menos_dep'){
-	
-	
-	//echo "ssssssssssssssssssssss";
-$total_menos_depositado = isset($_POST["total_menos_depositado"])?$_POST["total_menos_depositado"]:"";
-$numero_evento2a = isset($_POST["numero_evento2a"])?$_POST["numero_evento2a"]:"";
-	echo $resultado = $pagoproveedores->pendiente_pago($total_menos_depositado,$numero_evento2a);
-}
-
-if($action=='ajax'){
-	$NUMERO_EVENTO = isset($_POST["NUMERO_EVENTO"])?$_POST["NUMERO_EVENTO"]:"";
-	echo $resultado = $pagoproveedores->buscarnombre($NUMERO_EVENTO);
-}
-
-if($action=='ciudad_valor'){
-	$NUMERO_EVENTO = isset($_POST["NUMERO_EVENTO"])?$_POST["NUMERO_EVENTO"]:"";
-	echo $resultado = $pagoproveedores->buscarciudad($NUMERO_EVENTO);
 }
  
 if($hiddenpagoproveedores == 'hiddenpagoproveedores' or $ENVIARPAGOprovee == 'ENVIARPAGOprovee'){            
@@ -247,13 +106,11 @@ $OBSERVACIONES_1 = isset($_POST["OBSERVACIONES_1"])?$_POST["OBSERVACIONES_1"]:""
 $TIPO_CAMBIOP = isset($_POST["TIPO_CAMBIOP"])?$_POST["TIPO_CAMBIOP"]:"";
 $TOTAL_ENPESOS = isset($_POST["TOTAL_ENPESOS"])?$_POST["TOTAL_ENPESOS"]:"";
 $IMPUESTO_HOSPEDAJE = isset($_POST["IMPUESTO_HOSPEDAJE"])?$_POST["IMPUESTO_HOSPEDAJE"]:"";
-
-$EJECUTIVOTARJETA = isset($_POST["EJECUTIVOTARJETA"])?$_POST["EJECUTIVOTARJETA"]:"";
 $IVA = isset($_POST["IVA"])?$_POST["IVA"]:"";
+$EJECUTIVOTARJETA = isset($_POST["EJECUTIVOTARJETA"])?$_POST["EJECUTIVOTARJETA"]:"";
 $TImpuestosRetenidosIVA = isset($_POST["TImpuestosRetenidosIVA"])?$_POST["TImpuestosRetenidosIVA"]:"";
 $TImpuestosRetenidosISR = isset($_POST["TImpuestosRetenidosISR"])?$_POST["TImpuestosRetenidosISR"]:"";
 $descuentos = isset($_POST["descuentos"])?$_POST["descuentos"]:"";
-
 $hiddenpagoproveedores = isset($_POST["hiddenpagoproveedores"])?$_POST["hiddenpagoproveedores"]:""; 
 $IPpagoprovee = isset($_POST["IPpagoprovee"])?$_POST["IPpagoprovee"]:""; 
 
@@ -289,26 +146,9 @@ $DescripcionConcepto = isset($_POST["DescripcionConcepto"])?$_POST["DescripcionC
 $Cantidad = isset($_POST["Cantidad"])?$_POST["Cantidad"]:"";
 $ClaveUnidad = isset($_POST["ClaveUnidad"])?$_POST["ClaveUnidad"]:"";
 $ClaveProdServ = isset($_POST["ClaveProdServ"])?$_POST["ClaveProdServ"]:"";
-
-if($IPpagoprovee != '' && ($NOMBRE_EVENTO == '' || $MOTIVO_GASTO == '')){
-	$resultadoActual = $pagoproveedores->Listado_pagoproveedor2($IPpagoprovee);
-	$registroActual = mysqli_fetch_array($resultadoActual, MYSQLI_ASSOC);
-	if($registroActual){
-		if($NOMBRE_EVENTO == '' && isset($registroActual["NOMBRE_EVENTO"])){
-			$NOMBRE_EVENTO = $registroActual["NOMBRE_EVENTO"];
-		}
-		if($MOTIVO_GASTO == '' && isset($registroActual["MOTIVO_GASTO"])){
-			$MOTIVO_GASTO = $registroActual["MOTIVO_GASTO"];
-		}
-	}
-}
-
-if( $MOTIVO_GASTO == "" or $EJECUTIVOTARJETA == "" or $FECHA_A_DEPOSITAR == ""){
-	
-	echo "<P style='color:red; font-size:23px;'>FAVOR DE LLENAR CAMPOS OBLIGATORIOS</p>";
-}else{
-
-echo $pagoproveedores->PAGOPRO ($NUMERO_CONSECUTIVO_PROVEE , $NOMBRE_COMERCIAL , $RAZON_SOCIAL , $RFC_PROVEEDOR , $NUMERO_EVENTO ,$NOMBRE_EVENTO, $MOTIVO_GASTO , $CONCEPTO_PROVEE , $MONTO_TOTAL_COTIZACION_ADEUDO , $MONTO_DEPOSITAR , $MONTO_PROPINA , $FECHA_AUTORIZACION_RESPONSABLE , $FECHA_AUTORIZACION_AUDITORIA , $FECHA_DE_LLENADO , $MONTO_FACTURA , $TIPO_DE_MONEDA , $PFORMADE_PAGO,$FECHA_DE_PAGO , $FECHA_A_DEPOSITAR , $STATUS_DE_PAGO ,$ACTIVO_FIJO, $GASTO_FIJO,$PAGAR_CADA,$FECHA_PPAGO,$FECHA_TPROGRAPAGO,$NUMERO_EVENTOFIJO,$CLASI_GENERAL,$SUB_GENERAL,$BANCO_ORIGEN , $MONTO_DEPOSITADO , $CLASIFICACION_GENERAL , $CLASIFICACION_ESPECIFICA , $PLACAS_VEHICULO , $MONTO_DE_COMISION , $POLIZA_NUMERO , $EJECUTIVOTARJETA,$NOMBRE_DEL_EJECUTIVO , $NOMBRE_DEL_AYUDO,$OBSERVACIONES_1, $TIPO_CAMBIOP,  $TOTAL_ENPESOS,$IMPUESTO_HOSPEDAJE,$IVA,$TImpuestosRetenidosIVA,$TImpuestosRetenidosISR,$descuentos, $ENVIARPAGOprovee,$hiddenpagoproveedores,$IPpagoprovee,
+//print_r($_POST);
+              // include_once (__ROOT1__."/includes/crea_funciones.php");PFORMADE_PAGO
+echo $pagoproveedores->PAGOPRO ($NUMERO_CONSECUTIVO_PROVEE , $NOMBRE_COMERCIAL , $RAZON_SOCIAL , $RFC_PROVEEDOR , $NUMERO_EVENTO ,$NOMBRE_EVENTO, $MOTIVO_GASTO , $CONCEPTO_PROVEE , $MONTO_TOTAL_COTIZACION_ADEUDO , $MONTO_DEPOSITAR , $MONTO_PROPINA , $FECHA_AUTORIZACION_RESPONSABLE , $FECHA_AUTORIZACION_AUDITORIA , $FECHA_DE_LLENADO , $MONTO_FACTURA , $TIPO_DE_MONEDA , $PFORMADE_PAGO,$FECHA_DE_PAGO , $FECHA_A_DEPOSITAR , $STATUS_DE_PAGO ,$ACTIVO_FIJO, $GASTO_FIJO,$PAGAR_CADA,$FECHA_PPAGO,$FECHA_TPROGRAPAGO,$NUMERO_EVENTOFIJO,$CLASI_GENERAL,$SUB_GENERAL,$BANCO_ORIGEN , $MONTO_DEPOSITADO , $CLASIFICACION_GENERAL , $CLASIFICACION_ESPECIFICA , $PLACAS_VEHICULO , $MONTO_DE_COMISION , $POLIZA_NUMERO , $NOMBRE_DEL_EJECUTIVO , $NOMBRE_DEL_AYUDO,$OBSERVACIONES_1, $TIPO_CAMBIOP,  $TOTAL_ENPESOS,$IMPUESTO_HOSPEDAJE,$IVA,$EJECUTIVOTARJETA, $ENVIARPAGOprovee,$hiddenpagoproveedores,$TImpuestosRetenidosIVA,$TImpuestosRetenidosISR,$descuentos,$IPpagoprovee,
 	$FechaTimbrado, $tipoDeComprobante, 
 		$metodoDePago, $formaDePago, $condicionesDePago, $subTotal, 
 		$TipoCambio, $Moneda, $total, $serie, 
@@ -323,7 +163,6 @@ $tablesdb = '07COMPROBACION';
 	  include_once (__ROOT1__."/includes/crea_funciones_filtro_completo.php");*/
 
 
-}
 }
 elseif($borrapagoaproveedores == 'borrapagoaproveedores'){
 	$borra_id_PAGOP = isset($_POST["borra_id_PAGOP"])?$_POST["borra_id_PAGOP"]:"";   
@@ -435,10 +274,13 @@ if( $_FILES["ADJUNTAR_FACTURA_XML"] == true){
 	//$explotado = explode('^',$ADJUNTAR_FACTURA_XML2);
 	$url = __ROOT1__.'/includes/archivos/'.$ADJUNTAR_FACTURA_XML2;	
 	$regreso = $conexion2->lectorxml($url);
-	$rfcE = $regreso['rfcE'];					
-	$nombreE = $regreso['nombreE'];
+	
+	 $rfcE = $regreso['rfcE'];					
+	 $nombreE = $regreso['nombreE'];
+
 	$conn = $conexion->db();//verificar_usuario	
-	//PRINT_R($conn);
+	$oldIdCG = isset($_SESSION["idCG"]) ? trim((string)$_SESSION["idCG"]) : '';
+
 		if( $pagoproveedores->verificar_rfc($conn,$rfcE) ==''){
 			$idwebc = $pagoproveedores->ingresar_usuario($conn,TRIM($nombreE));
 			$pagoproveedores->ingresar_rfc($conn,TRIM($rfcE),$idwebc);
@@ -447,8 +289,24 @@ if( $_FILES["ADJUNTAR_FACTURA_XML"] == true){
 		}else{
 			$idwebc = $pagoproveedores->verificar_usuario($conn,$nombreE);
 		}
-		//echo $explotado[1];
-//}
+		if($oldIdCG !== '' && $idwebc !== '' && $oldIdCG !== (string)$idwebc){
+
+			$oldIdCGSafe = mysqli_real_escape_string($conn, $oldIdCG);
+
+			$idwebcSafe = mysqli_real_escape_string($conn, (string)$idwebc);
+
+			$moveTempDocs = "UPDATE 07COMPROBACIONDOCT
+
+				SET idRelacion = '".$idwebcSafe."'
+
+				WHERE idRelacion = '".$oldIdCGSafe."'
+
+				  AND (idTemporal = 'si' OR idTemporal = '' OR idTemporal IS NULL)";
+
+			mysqli_query($conn, $moveTempDocs);
+
+		}
+
 $_SESSION["idCG"] = $idwebc;
 }
        // ob_end_clean();
@@ -485,7 +343,7 @@ if($idCG == ''){
 }
 
 if($IPpagoprovee !=''  and ($_FILES["ADJUNTAR_FACTURA_XML"] == true or $_FILES["ADJUNTAR_FACTURA_PDF"] == true or  $_FILES["ADJUNTAR_COTIZACION"] == true  or  $_FILES["CONPROBANTE_TRANSFERENCIA"] == true  or  $_FILES["ADJUNTAR_ARCHIVO_1"] == true or $_FILES["FOTO_ESTADO_PROVEE11"] == true  or  $_FILES["COMPLEMENTOS_PAGO_PDF"] == true or  $_FILES["COMPLEMENTOS_PAGO_XML"] == true or  $_FILES["CANCELACIONES_PDF"] == true or  $_FILES["CANCELACIONES_XML"] == true or  $_FILES ["ADJUNTAR_FACTURA_DE_COMISION_PDF"] == true or  $_FILES ["ADJUNTAR_FACTURA_DE_COMISION_XML"] == true or  $_FILES["CALCULO_DE_COMISION"] == true or  $_FILES["COMPROBANTE_DE_DEVOLUCION"] == true or  $_FILES["NOTA_DE_CREDITO_COMPRA"] == true )){
-if($IPpagoprovee != ''){
+if($IPpagoprovee != ''){	
 //ECHO "AAAAAAAAAAAA1";
 //print_r($_POST);
 //print_r($_FILES);
@@ -496,7 +354,7 @@ foreach($_FILES AS $ETQIETA => $VALOR){
 //ECHO $idPROV;
 //AAAQUI
 
-	if($_FILES['ADJUNTAR_FACTURA_XML']==true){
+	if($_FILES['ADJUNTAR_FACTURA_XML']==true){	
 	$ADJUNTAR_FACTURA_XML = $conexion->sologuardar6($ETQIETA,$ADJUNTAR_FACTURA_XML2,'07COMPROBACIONDOCT',$idCG,$IPpagoprovee);	
 	}else{
 	$ADJUNTAR_FACTURA_XML = $conexion->cargar($ETQIETA,'07COMPROBACIONDOCT','6',$IPpagoprovee,'si',$IPpagoprovee);
@@ -511,13 +369,7 @@ foreach($_FILES AS $ETQIETA => $VALOR){
 		$regreso = $conexion2->lectorxml($url);
 		$resultado = $pagoproveedores->VALIDA02XMLUUID($regreso['UUID']);
 		if($resultado == 'S'){
-			
-			$pagoproveedores->borrar_xmls(__ROOT1__.'/includes/archivos/',$IPpagoprovee,$ADJUNTAR_FACTURA_XML,'07XML','07COMPROBACIONDOCT');
-			
-		echo $ADJUNTAR_FACTURA_XML;
-				ob_start();
-			$pagoproveedores->guardarxmlDB2($IPpagoprovee,$idCG,'07XML', $url);
-				ob_end_clean();
+			echo $ADJUNTAR_FACTURA_XML;
 		}else{
 			echo '3';
 			UNLINK($url);

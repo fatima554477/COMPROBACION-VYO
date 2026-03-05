@@ -1,10 +1,18 @@
 
 
 <?php
-/*
-fecha sandor: 
-fecha fatis : 05/04/2024
+
+/**
+ 	--------------------------
+	Autor: Sandor Matamoros
+	Programer: Fatima Arellano
+	Propietario: EPC
+	fecha sandor: 
+    fecha fatis : 08/04/2024
+	----------------------------
+ 
 */
+
 ?>
 
 <div id="dataModal14" class="modal fade">
@@ -25,7 +33,6 @@ fecha fatis : 05/04/2024
   </div>
  </div>
 </div>
-
 <div id="add_data_Modal" class="modal fade">
  <div class="modal-dialog">
   <div class="modal-content">
@@ -122,24 +129,85 @@ fecha fatis : 05/04/2024
   </div>
 </div>
 
-<!--NUEVO CODIGO BORRAR-->
 <div id="dataModal4" class="modal fade">
- <div class="modal-dialog modal-lg">
-  <div class="modal-content">
-   <div class="modal-header">
+  <div class="modal-dialog" style="width:80% !important; max-width:100% !important;">
+    <div class="modal-content">
+      <div class="modal-header" style="cursor:move;">
+        <h4 class="modal-title">Detalles</h4>
+      </div>
+      <div class="modal-body" id="personal_detalles4">
+        Contenido...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
 
-    <h4 class="modal-title">Detalles</h4>
-   </div>
-   <div class="modal-body" id="personal_detalles4">
-    SE HA MODIFICADO EL REGISTRO
-   </div>
-   <div class="modal-footer">	  
-   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-   
-   </div>
+      <!-- Flecha para arrastrar -->
+      <div id="dragArrow" 
+           style="cursor:move; text-align:center; font-size:22px; padding:5px; background:#f1f1f1;">
+        ⬍
+      </div>
+    </div>
   </div>
- </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const modal = document.querySelector("#dataModal4 .modal-dialog");
+  const header = document.querySelector("#dataModal4 .modal-header");
+  const arrow  = document.getElementById("dragArrow");
+
+  let offsetX = 0, offsetY = 0, isDragging = false;
+
+  function startDrag(e) {
+    isDragging = true;
+    offsetX = e.clientX - modal.offsetLeft;
+    offsetY = e.clientY - modal.offsetTop;
+
+    document.addEventListener("mousemove", moveModal);
+    document.addEventListener("mouseup", stopDrag);
+  }
+
+  function moveModal(e) {
+    if (isDragging) {
+      modal.style.margin = "0"; 
+      modal.style.position = "absolute";
+      modal.style.left = (e.clientX - offsetX) + "px";
+      modal.style.top  = (e.clientY - offsetY) + "px";
+    }
+  }
+
+  function stopDrag() {
+    isDragging = false;
+    document.removeEventListener("mousemove", moveModal);
+    document.removeEventListener("mouseup", stopDrag);
+  }
+
+  // Puedes arrastrar desde arriba o desde la flecha
+  header.addEventListener("mousedown", startDrag);
+  arrow.addEventListener("mousedown", startDrag);
+});
+</script>
+
+
+<script>
+function verificarFormaDePago() {
+  var selectFP = document.getElementById('PFORMADE_PAGO');
+  if (!selectFP) {
+    return;
+  }
+
+  if (selectFP.value !== '04') {
+    alert('LA FORMA DE PAGO DE TU FACTURA ES DIFERENTE A 04 (TARJETA DE CREDITO) PEDIR REFACTURACIÓN');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', verificarFormaDePago);
+</script>
+
+
+
+
 
 <script type="text/javascript">
 	
@@ -283,32 +351,6 @@ function pasarpagado(pasarpagado_id){
 
 }
 
-
-function pasarpagado(pasarpagado_id){
-	//$('#personal_detalles4').html();
-	//$('#dataModal4').modal('show');	
-
-	var checkBox = document.getElementById("pasarpagado1a"+pasarpagado_id);
-	var pasarpagado_text = "";
-	if (checkBox.checked == true){
-	pasarpagado_text = "si";
-	}else{
-	pasarpagado_text = "no";
-	}
-	  $.ajax({
-		url:'pagoproveedores/controladorPP.php',
-		method:'POST',
-		data:{pasarpagado_id:pasarpagado_id,pasarpagado_text:pasarpagado_text},
-		beforeSend:function(){
-		$('#pasarpagado').html('cargando');
-	},
-		success:function(data){
-		$('#pasarpagado').html("<span id='ACTUALIZADO' >"+data+"</span>");
-	}
-	});
-
-}
-
 //////////////////////////////////////////////////////////////////////////////////////
 
 function comasainput(name){
@@ -328,6 +370,10 @@ const numberWithCommas = (x) => {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+
+
+
+
 function actualizarFechaDeLlenado() {
 	const fechaInput = document.querySelector('input[name="FECHA_DE_LLENADO"]');
 	if (!fechaInput) {
@@ -339,11 +385,6 @@ function actualizarFechaDeLlenado() {
 }
 
 
-
-
-
-
-
 	
 $(document).ready(function(){
 
@@ -351,11 +392,11 @@ $(document).ready(function(){
 
 
 
-	
 $("#enviarPAGOPROVEEDORES").click(function(){
 	/*nuevo script pbajar archivos y datos*/
 	actualizarFechaDeLlenado();
 const formData = new FormData($('#pagoaproveedoresform')[0]);
+
 
 $.ajax({
     url: 'comprobaciones/controladorPP.php',
@@ -367,7 +408,9 @@ $.ajax({
     processData: false
 }).done(function(data) {
 		if($.trim(data)=='Ingresado' || $.trim(data)=='Actualizado'){
+			/*nuveo inicio*/
 			$("#pagoaproveedoresform")[0].reset(); //resetea formulario
+
 			$("#RAZON_SOCIAL").val(''); //borra valores vienen de PHP
 			$("#CONCEPTO_PROVEE").val(''); //borra valores vienen de PHP
 			$("#RFC_PROVEEDOR").val(''); //borra valores vienen de PHP
@@ -392,22 +435,12 @@ $.ajax({
 			$("#IVA").load(location.href + " #IVA");
 
 			$("#2ADJUNTAR_FACTURA_PDF").load(location.href + " #2ADJUNTAR_FACTURA_PDF");
-			$("#NOMBRE_COMERCIAL").load(location.href + " #NOMBRE_COMERCIAL");
 			$("#2ADJUNTAR_COTIZACION").load(location.href + " #2ADJUNTAR_COTIZACION");
 			$("#2CONPROBANTE_TRANSFERENCIA").load(location.href + " #2CONPROBANTE_TRANSFERENCIA");
 			$("#2ADJUNTAR_ARCHIVO_1").load(location.href + " #2ADJUNTAR_ARCHIVO_1");
 			$('#NUMERO_CONSECUTIVO_PROVEE2').load(location.href + ' #NUMERO_CONSECUTIVO_PROVEE2');
 			$('#2MONTO_FACTURA').load(location.href + ' #2MONTO_FACTURA');
 			$('#2MONTO_DEPOSITAR').load(location.href + ' #2MONTO_DEPOSITAR');
-			$('#2COMPLEMENTOS_PAGO_PDF').load(location.href + ' #2COMPLEMENTOS_PAGO_PDF');
-			$('#2COMPLEMENTOS_PAGO_XML').load(location.href + ' #2COMPLEMENTOS_PAGO_XML');
-			$('#2CANCELACIONES_PDF').load(location.href + ' #2CANCELACIONES_PDF');
-			$('#2CANCELACIONES_XML').load(location.href + ' #2CANCELACIONES_XML');
-			$('#2ADJUNTAR_FACTURA_DE_COMISION_PDF').load(location.href + ' #2ADJUNTAR_FACTURA_DE_COMISION_PDF');
-			$('#2ADJUNTAR_FACTURA_DE_COMISION_XML').load(location.href + ' #2ADJUNTAR_FACTURA_DE_COMISION_XML');
-			$('#2COMPROBANTE_DE_DEVOLUCION').load(location.href + ' #2COMPROBANTE_DE_DEVOLUCION');
-			$('#2CALCULO_DE_COMISION').load(location.href + ' #2CALCULO_DE_COMISION');
-			$('#2NOTA_DE_CREDITO_COMPRA').load(location.href + ' #2NOTA_DE_CREDITO_COMPRA');
 			$('#2IVA').load(location.href + ' #2IVA');
 			$('#2TImpuestosRetenidosIVA').load(location.href + ' #2TImpuestosRetenidosIVA');
 			$('#TImpuestosRetenidosIVA').load(location.href + ' #TImpuestosRetenidosIVA');
@@ -416,19 +449,16 @@ $.ajax({
 			$('#2descuentos').load(location.href + ' #2descuentos');
 			$('#descuentos').load(location.href + ' #descuentos');
 
+
 			$("#mensajepagoproveedores").html("<span id='ACTUALIZADO' >"+data+"</span>").delay(2000).fadeOut();
             $('#resettabla').load(location.href + ' #resettabla');	
-	
             $('#reset_totales').load(location.href + ' #reset_totales');
-			$.getScript(load(1));
-				
 
-        
-
+			$.getScript(load(1)).delay(2000).fadeOut();
 
 			
 			}else{
-			$("#mensajepagoproveedores").html(data).delay(2000).fadeOut();
+			$("#mensajepagoproveedores").html(data);
 		}
 })
 .fail(function() {
@@ -515,6 +545,24 @@ $('#dataModal').modal('toggle');
 });
 
 
+
+//NOMBRE DEL BOTÓN
+$(document).on('click', '.view_dataSUBIRCOM', function(){
+var personal_id = $(this).attr('id');
+$.ajax({
+url:'comprobaciones/VistaPreviapagoproveedor2.php',
+method:'POST',
+data:{personal_id:personal_id},
+beforeSend:function(){
+$('#mensajepagoproveedores').html('cargando');
+},
+success:function(data){
+$('#personal_detalles').html(data);
+$('#dataModal').modal('toggle');
+            $('#reset_totales').load(location.href + ' #reset_totales');
+}
+});
+});
 
 
 
@@ -814,7 +862,6 @@ $('#dataModal').modal('toggle');
 });
 });
 
-
 /*match*//*match*//*match*//*match*//*match*//*match*//*match*/
 
 
@@ -885,7 +932,7 @@ $('#dataModal14').modal('toggle');
 });
 
 
-			 $('#target1').show("linear");
+		$('#target1').show("linear");
 			$('#target2').hide("linear");
 			$('#target3').hide("linear");
 			$('#target4').hide("linear");
