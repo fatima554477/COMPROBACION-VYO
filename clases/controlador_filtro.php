@@ -556,6 +556,11 @@ while ($rowDOCTOS = mysqli_fetch_array($querycontrasDOCTOS)) {
     <?php if($row["STATUS_RESPONSABLE_EVENTO"]=='si'){ echo "checked"; } $colspan += 1; ?>/>
 </td>
 
+<?php
+$statusRechazado = isset($row["STATUS_RECHAZADO"]) ? $row["STATUS_RECHAZADO"] : 'no';
+$numeroEventoRegistro = isset($row["NUMERO_EVENTO"]) ? strtoupper(trim((string)$row["NUMERO_EVENTO"])) : '';
+$tienePermisoVenta = $numeroEventoRegistro !== '' && isset($eventosAutorizadosVentas[$numeroEventoRegistro]);
+?>
 <!-- VENTAS -->
 <td style="text-align:center; background:<?php echo ($row["STATUS_VENTAS"] == 'si') ? '#ceffcc' : '#e9d8ee'; ?>;"
 	id="color_VENTAS<?php echo $row["07COMPROBACIONid"]; ?>">
@@ -651,7 +656,8 @@ while ($rowDOCTOS = mysqli_fetch_array($querycontrasDOCTOS)) {
 <?php if ($p_rechazo_ver) { ?>
 <td style="text-align:center; background:
 	<?php echo ($statusRechazado == 'si') ? '#ceffcc' : '#e9d8ee'; ?>;"
-id="color_RECHAZADO<?php echo $row["07COMPROBACIONid"]; ?>">
+
+ id="color_RECHAZADO<?php echo $row["07COMPROBACIONid"]; ?>">
     <?php
         $motivoRechazo = $database->obtener_motivo_rechazo($row["07COMPROBACIONid"]);
         $statusVentasAutorizado = isset($row["STATUS_VENTAS"]) && $row["STATUS_VENTAS"] == 'si';
@@ -662,41 +668,33 @@ id="color_RECHAZADO<?php echo $row["07COMPROBACIONid"]; ?>">
         $permisomodificarRechazo = $p_rechazo_mod;
     ?>
     <input type="hidden" id="motivo_rechazo_<?php echo $row["07COMPROBACIONid"]; ?>" value="<?php echo htmlspecialchars($motivoRechazo, ENT_QUOTES, 'UTF-8'); ?>" />
-    <input type="checkbox"
-        style="width:30px; cursor:pointer;"
-        class="form-check-input"
+    <input type="checkbox" style="width:30px; cursor:pointer;" class="form-check-input"
         id="STATUS_RECHAZADO<?php echo $row["07COMPROBACIONid"]; ?>"
         name="STATUS_RECHAZADO<?php echo $row["07COMPROBACIONid"]; ?>"
         value="<?php echo $row["07COMPROBACIONid"]; ?>"
         <?php
         if ($statusRechazado == 'si') {
-            if($permisomodificarRechazo){
-                echo 'checked onclick="STATUS_RECHAZADO('.$row["07COMPROBACIONid"].')" title="Pago rechazado"';
-            } else {
-                echo 'checked disabled style="cursor:not-allowed;" title="Pago rechazado"';
-            }
+            echo $permisomodificarRechazo
+                ? 'checked onclick="STATUS_RECHAZADO('.$row["07COMPROBACIONid"].')" title="Pago rechazado"'
+                : 'checked disabled style="cursor:not-allowed;" title="Pago rechazado"';
         } elseif ($statusVentasAutorizado) {
             echo 'disabled style="cursor:not-allowed;" title="No se puede rechazar: autorizado por ventas"';
         } else {
-            if($permisoguardarRechazo || $permisomodificarRechazo){
-               echo 'onclick="STATUS_RECHAZADO('.$row["07COMPROBACIONid"].')"';
-            } else {
-                echo 'disabled style="cursor:not-allowed;" title="Sin permiso para modificar"';
-            }
+            echo ($permisoguardarRechazo || $permisomodificarRechazo)
+                ? 'onclick="STATUS_RECHAZADO('.$row["07COMPROBACIONid"].')"'
+                : 'disabled style="cursor:not-allowed;" title="Sin permiso para modificar"';
         }
         ?>
     />
     <?php if($permisoguardarRechazo || $permisomodificarRechazo){ ?>
-    <button type="button" title="agregar!"
-            id="agregar_rechazo_<?php echo $row['07COMPROBACIONid']; ?>"
+    <button type="button" title="agregar!" id="agregar_rechazo_<?php echo $row['07COMPROBACIONid']; ?>"
             data-rechazo-id="<?php echo $row['07COMPROBACIONid']; ?>"
             style="border:none;background:transparent;cursor:pointer;color:#007bff;font-size:14px;<?php echo $mostrarAgregarRechazo ? '' : 'display:none;'; ?>"
             onclick="abrirFormularioRechazo(<?php echo $row['07COMPROBACIONid']; ?>)">agregar <br>motivo</button>
     <?php } ?>
-    <button type="button" title="Ver motivo"
-      id="ver_rechazo_<?php echo $row['07COMPROBACIONid']; ?>"
+    <button type="button" title="Ver motivo" id="ver_rechazo_<?php echo $row['07COMPROBACIONid']; ?>"
         data-rechazo-id="<?php echo $row['07COMPROBACIONid']; ?>"
-       style="border:none;background:transparent;cursor:pointer;color:#28a745;font-size:16px;<?php echo $mostrarVerRechazo ? '' : 'display:none;'; ?>"
+        style="border:none;background:transparent;cursor:pointer;color:#28a745;font-size:16px;<?php echo $mostrarVerRechazo ? '' : 'display:none;'; ?>"
         onclick="verMotivoRechazo(<?php echo $row['07COMPROBACIONid']; ?>)">ver</button>
     <?php $colspan += 1; ?>
 </td>

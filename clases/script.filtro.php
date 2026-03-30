@@ -198,9 +198,17 @@ function STATUS_RECHAZADO(RECHAZADO_id){
 	var checkBox = $checkBox.get(0);
 	var estadoAnterior = $checkBox.data('estadoAnterior') || (checkBox.checked ? 'si' : 'no');
 	var RECHAZADO_text = checkBox.checked ? "si" : "no";
+	var aplicarEstadoRechazo = function(estado){
+		if(estado !== 'si' && estado !== 'no'){ return; }
+		checkBox.checked = (estado === 'si');
+		$('#color_RECHAZADO'+RECHAZADO_id).css('background-color', (estado === 'si') ? '#ceffcc' : '#e9d8ee');
+		$checkBox.data('estadoAnterior', estado);
+		if(estado === 'si' && $checkBox.data('forzarAgregarMotivo') !== 'si'){ $checkBox.removeData('forzarAgregarMotivo'); }
+		actualizarBotonesRechazo(RECHAZADO_id, estado);
+	};
 	if(RECHAZADO_text === 'no'){ $checkBox.data('forzarAgregarMotivo', 'si'); }
 	else if(RECHAZADO_text === 'si' && $checkBox.data('forzarAgregarMotivo') !== 'si'){ $checkBox.removeData('forzarAgregarMotivo'); }
-	actualizarBotonesRechazo(RECHAZADO_id, RECHAZADO_text);
+	aplicarEstadoRechazo(RECHAZADO_text);
 	$.ajax({
 		url:'comprobaciones/controladorPP.php',
 		method:'POST',
@@ -208,20 +216,19 @@ function STATUS_RECHAZADO(RECHAZADO_id){
 		beforeSend:function(){ $('#pasarpagado2').html('cargando'); },
 		success:function(data){
 			var result = (data || '').trim().split('^');
+			var estadoRespuesta = '';
+			if(result[1] === 'si' || result[1] === 'no'){ estadoRespuesta = result[1]; }
+			else if(result[0] === 'si' || result[0] === 'no'){ estadoRespuesta = result[0]; }
 			$('#pasarpagado2').html("Cargando...").fadeIn().delay(500).fadeOut();
 			load(1);
-			if(result[1] == 'si' || result[1] == 'no'){
-				$checkBox.data('estadoAnterior', result[1]);
-				if(result[1] == 'si' && $checkBox.data('forzarAgregarMotivo') !== 'si'){ $checkBox.removeData('forzarAgregarMotivo'); }
-				actualizarBotonesRechazo(RECHAZADO_id, result[1]);
+			if(estadoRespuesta !== ''){
+				aplicarEstadoRechazo(estadoRespuesta);
 			} else {
-				checkBox.checked = (estadoAnterior === 'si');
-				actualizarBotonesRechazo(RECHAZADO_id, estadoAnterior);
+				aplicarEstadoRechazo(RECHAZADO_text);
 			}
 		},
 		error:function(){
-			checkBox.checked = (estadoAnterior === 'si');
-			actualizarBotonesRechazo(RECHAZADO_id, estadoAnterior);
+			aplicarEstadoRechazo(estadoAnterior);
 		}
 	});
 }
