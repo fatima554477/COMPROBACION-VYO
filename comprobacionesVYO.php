@@ -232,22 +232,11 @@ function validarUnSoloAdjuntoFactura(campo) {
 }
 
 function file_explorer_factura(campo) {
-	if (!validarUnSoloAdjuntoFactura(campo)) {
-		return false;
-	}
-
 	file_explorer(campo);
 	return true;
 }
 
 function upload_file_factura(event, campo) {
-	if (!validarUnSoloAdjuntoFactura(campo)) {
-		if (event) {
-			event.preventDefault();
-		}
-		return false;
-	}
-
 	upload_file(event, campo);
 	return true;
 }

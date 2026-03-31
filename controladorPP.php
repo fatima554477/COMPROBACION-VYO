@@ -484,15 +484,10 @@ if($idCG == ''){
 	$_SESSION["idCG"] = $idCG;
 }
 
-// Bloquear carga duplicada de ADJUNTAR_FACTURA_XML y ADJUNTAR_FACTURA_PDF
+// Reemplazar ADJUNTAR_FACTURA_XML si ya existe uno previo (nunca permitir duplicados)
 if(!empty($_FILES["ADJUNTAR_FACTURA_XML"]["name"]) && $idCG != ''){
 	if($pagoproveedores->tiene_adjunto_factura('ADJUNTAR_FACTURA_XML', $idCG)){
-		if(isset($ADJUNTAR_FACTURA_XML2) && $ADJUNTAR_FACTURA_XML2 != ''){
-			$_tmpPath = __ROOT1__.'/includes/archivos/'.$ADJUNTAR_FACTURA_XML2;
-			if(file_exists($_tmpPath)) unlink($_tmpPath);
-		}
-		echo "4";
-		exit;
+		$pagoproveedores->limpiar_historial_factura_xml($idCG, __ROOT1__.'/includes/archivos/');
 	}
 }
 if(!empty($_FILES["ADJUNTAR_FACTURA_PDF"]["name"]) && $idCG != ''){
