@@ -193,8 +193,12 @@ function file_explorer(name) {
   };
 }
 
+var _uploadingFields = {};
+
 function ajax_file_upload1(file_obj, nombre) {
   if (!file_obj) return;
+  if (_uploadingFields[nombre]) return;
+  _uploadingFields[nombre] = true;
 
   var form_data = new FormData();
   form_data.append(nombre, file_obj);
@@ -205,11 +209,12 @@ function ajax_file_upload1(file_obj, nombre) {
     contentType: false,
     processData: false,
     data: form_data,
- beforeSend: function () {
+    beforeSend: function () {
       $('#1' + nombre).html('<p style="color:green;"><span class="spinner-border spinner-border-sm"></span>&nbsp;Cargando archivo...</p>');
       $('#mensajeADJUNTOCOL').html('<p style="color:green;"><span class="spinner-border spinner-border-sm"></span>&nbsp;Cargando archivo...</p>');
     },
     success: function (response) {
+      _uploadingFields[nombre] = false;
       var resp = $.trim(response);
 
       if (resp === '3') {
@@ -240,6 +245,9 @@ function ajax_file_upload1(file_obj, nombre) {
         recargarElemento('#2' + nombre);
         recargarElemento('#resettabla');
       }
+    },
+    error: function () {
+      _uploadingFields[nombre] = false;
     }
   });
 }
