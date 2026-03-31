@@ -327,9 +327,8 @@ $(document).on('change','input[type="checkbox"]' ,function(e) {
 
 $listadosube = $pagoproveedores->Listado_subefacturadocto('ADJUNTAR_FACTURA_XML');
 
-while($rowsube=mysqli_fetch_array($listadosube)){
-	echo "<a target='_blank' href='includes/archivos/".$rowsube['ADJUNTAR_FACTURA_XML']."' id='A".$rowsube['id']."' >Visualizar!</a> "." <span id='".$rowsube['id']."' class='view_dataSBborrar2' style='cursor:pointer;color:blue;'>Borrar!</span> <span > ".$rowsube['fechaingreso']."</span>".'<br/>';		
-	
+if($rowsube=mysqli_fetch_array($listadosube)){
+	echo "<a target='_blank' href='includes/archivos/".$rowsube['ADJUNTAR_FACTURA_XML']."' id='A".$rowsube['id']."' >Visualizar!</a> "." <span id='".$rowsube['id']."' class='view_dataSBborrar2' style='cursor:pointer;color:blue;'>Borrar!</span> <span > ".$rowsube['fechaingreso']."</span>".'<br/>';
 }
 	$NUMERO_CONSECUTIVO_PROVEE = '';	$FECHA_DE_PAGO = '';
 	$regreso = $pagoproveedores->variable_SUBETUFACTURA();
