@@ -245,11 +245,25 @@ function ajax_file_upload1(file_obj, nombre) {
 }
 
 
-/* -------------------------------------------------------
-   HELPER: recarga un elemento por selector
-------------------------------------------------------- */
+var _recargarXHR = {};
+
 function recargarElemento(selector) {
-  $(selector).load(location.href + ' ' + selector);
+   if (_recargarXHR[selector]) {
+    _recargarXHR[selector].abort();
+  }
+  _recargarXHR[selector] = $.get(location.href, function(data) {
+    var $match = $('<div>').html(data).find(selector);
+    if ($match.length) {
+      $(selector).html($match.html());
+    }
+    delete _recargarXHR[selector];
+  }).fail(function(jqXHR) {
+    if (jqXHR.statusText !== 'abort') {
+      console.error('recargarElemento error:', selector);
+    }
+    delete _recargarXHR[selector];
+  });
+
 }
 
 
@@ -276,12 +290,7 @@ function actualizarFechaDeLlenado() {
 }
 
 
-/* -------------------------------------------------------
-   FUNCIÓN CENTRALIZADA: Guardar + recargar en target2
-   MÉTODO: sessionStorage flag → location.reload(true)
-   - sessionStorage persiste entre recargas de la misma pestaña
-   - location.reload(true) fuerza recarga desde servidor (no caché)
-------------------------------------------------------- */
+
 function guardarYIrATarget2() {
   try {
     sessionStorage.setItem('irATarget', '2');
@@ -448,6 +457,10 @@ $(document).ready(function () {
      ENVIAR PAGO PROVEEDORES
   --------------------------------------------------- */
   $('#enviarPAGOPROVEEDORES').on('click', function () {
+	      var $btn = $(this);
+    if ($btn.prop('disabled')) return;
+    $btn.prop('disabled', true).text('Guardando...');
+
     actualizarFechaDeLlenado();
     var formData = new FormData($('#pagoaproveedoresform')[0]);
 
@@ -480,6 +493,9 @@ $(document).ready(function () {
       }
     }).fail(function () {
       console.error('[enviarPAGOPROVEEDORES] Error en la petición AJAX.');
+	      }).always(function () {
+      $btn.prop('disabled', false).text('GUARDAR');
+
     });
   });
 
@@ -503,6 +519,7 @@ $(document).ready(function () {
           // Recarga solo la fila afectada y su par (comportamiento original)
           $('#' + borra_id_sb).load(location.href + ' #' + borra_id_sb);
           $('#A' + borra_id_sb).load(location.href + ' #A' + borra_id_sb);
+		  location.reload();
         }
       });
     });
