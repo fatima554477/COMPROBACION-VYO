@@ -125,6 +125,14 @@
 <script>
 
 /* -------------------------------------------------------
+   NORMALIZAR TEXTO EMPRESA (receptor de factura)
+------------------------------------------------------- */
+function normalizarTextoEmpresaVO(texto) {
+  return (texto || '').toString().trim().toUpperCase().replace(/\s+/g, ' ');
+}
+
+
+/* -------------------------------------------------------
    MODAL ARRASTRABLE
 ------------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", function () {
@@ -181,6 +189,14 @@ var fileobj;
 
 function upload_file(e, name) {
   e.preventDefault();
+  // Guardia: bloquear si ya hay un XML cargado para este ciclo de guardado
+  if (name === 'ADJUNTAR_FACTURA_XML') {
+    var valorActual = $('#ADJUNTAR_FACTURA_XML').val();
+    if (valorActual && valorActual.trim() !== '') {
+      alert('Ya hay un archivo XML cargado. Guarda el registro actual antes de subir otro XML.');
+      return;
+    }
+  }
   fileobj = e.dataTransfer.files[0];
   ajax_file_upload1(fileobj, name);
 }
@@ -195,6 +211,14 @@ function file_explorer(name) {
 
 function ajax_file_upload1(file_obj, nombre) {
   if (!file_obj) return;
+  // Bloquear si ya hay un XML cargado para este ciclo de guardado
+  if (nombre === 'ADJUNTAR_FACTURA_XML') {
+    var valorActual = $('#ADJUNTAR_FACTURA_XML').val();
+    if (valorActual && valorActual.trim() !== '') {
+      alert('Ya hay un archivo XML cargado. Guarda el registro actual antes de subir otro XML.');
+      return;
+    }
+  }
 
   var form_data = new FormData();
   form_data.append(nombre, file_obj);
@@ -205,25 +229,45 @@ function ajax_file_upload1(file_obj, nombre) {
     contentType: false,
     processData: false,
     data: form_data,
- beforeSend: function () {
+    beforeSend: function () {
       $('#1' + nombre).html('<p style="color:green;"><span class="spinner-border spinner-border-sm"></span>&nbsp;Cargando archivo...</p>');
       $('#mensajeADJUNTOCOL').html('<p style="color:green;"><span class="spinner-border spinner-border-sm"></span>&nbsp;Cargando archivo...</p>');
     },
     success: function (response) {
       var resp = $.trim(response);
 
-      if (resp === '3') {
-        $('#1' + nombre).html('<p style="color:red;">UUID PREVIAMENTE CARGADO.</p>');
+      if (resp === '3' || resp.indexOf('3|') === 0) {
+        var partesDuplicado = resp.split('|');
+        var idDuplicado = partesDuplicado.length > 1 ? partesDuplicado[1] : '';
+        var numeroEventoDuplicado = partesDuplicado.length > 2 ? partesDuplicado[2] : '';
+        var mensajeDuplicado = 'UUID PREVIAMENTE CARGADO ';
+        if (idDuplicado !== '') {
+          mensajeDuplicado += 'CON EL ID:  ' + idDuplicado + '.';
+        }
+        if (numeroEventoDuplicado !== '') {
+          mensajeDuplicado += 'Y EN EL NÚMERO DE EVENTO: ' + numeroEventoDuplicado + '.';
+        }
+        $('#1' + nombre).html('<p style="color:red;"><strong>' + mensajeDuplicado + '</strong></p>');
+        $('#' + nombre).val('');
+
+      } else if (resp === '4') {
+        $('#1' + nombre).html('<p style="color:red;">Ya existe un archivo adjunto. Primero bórralo para subir uno nuevo.</p>');
         $('#' + nombre).val('');
 
       } else if (resp === 'El archivo debe estar en formato XML.') {
         $('#1' + nombre).html('<p style="color:red;">' + resp + '</p>');
         $('#' + nombre).val('');
 
+      } else if (resp.indexOf('6^^') === 0) {
+        var partesReceptor = resp.split('^^');
+        var receptorOriginal = partesReceptor.length > 1 ? partesReceptor[1] : '';
+        var receptorNormalizado = normalizarTextoEmpresaVO(receptorOriginal);
+        $('#1' + nombre).html('<p style="color:red;font-weight:600;">EL RECEPTOR DE LA FACTURA NO ES: EPC, INN, EVE520. RECEPTOR DETECTADO: <strong>' + receptorNormalizado + '</strong></p>');
+        $('#' + nombre).val('');
+
       } else {
         $('#' + nombre).val(response);
-                $('#1' + nombre).html('<p style="color:green;">✅ ¡Archivo cargado con éxito!</p>');
-        $('#mensajeADJUNTOCOL').html('<p style="color:green;">✅ ¡Actualizado!</p>');
+        $('#1' + nombre).html('<a target="_blank" href="includes/archivos/' + resp + '"></a>');
 
         recargarElemento('#2ADJUNTAR_FACTURA_XML');
 
@@ -248,7 +292,7 @@ function ajax_file_upload1(file_obj, nombre) {
 var _recargarXHR = {};
 
 function recargarElemento(selector) {
-   if (_recargarXHR[selector]) {
+  if (_recargarXHR[selector]) {
     _recargarXHR[selector].abort();
   }
   _recargarXHR[selector] = $.get(location.href, function(data) {
@@ -263,7 +307,6 @@ function recargarElemento(selector) {
     }
     delete _recargarXHR[selector];
   });
-
 }
 
 
@@ -288,7 +331,6 @@ function actualizarFechaDeLlenado() {
   fechaInput.value = pad(now.getDate()) + '-' + pad(now.getMonth() + 1) + '-' + now.getFullYear()
     + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
 }
-
 
 
 function guardarYIrATarget2() {
@@ -343,7 +385,7 @@ function activarTarget(num) {
 $(document).ready(function () {
 
   /* Inicialización: solo target1 visible */
-  activarTarget(1);
+  activarTarget(null);
 
   /* Mostrar/Ocultar individuales — generados dinámicamente */
   var allNums = [];
@@ -425,11 +467,11 @@ $(document).ready(function () {
 
     // 3. Previews de archivos — limpiar HTML (mensajes "Cargando...", links "Ver!")
     var previews = [
-      '#1ADJUNTAR_FACTURA_XML',   // preview XML
-      '#1ADJUNTAR_FACTURA_PDF',   // preview PDF
-      '#1ADJUNTAR_COTIZACION',    // preview cotización
-      '#1CONPROBANTE_TRANSFERENCIA', // preview comprobante
-      '#1ADJUNTAR_ARCHIVO_1',     // preview archivo extra
+      '#1ADJUNTAR_FACTURA_XML',
+      '#1ADJUNTAR_FACTURA_PDF',
+      '#1ADJUNTAR_COTIZACION',
+      '#1CONPROBANTE_TRANSFERENCIA',
+      '#1ADJUNTAR_ARCHIVO_1',
       '#mensajeADJUNTOCOL'
     ];
     previews.forEach(function(id) { $(id).html(''); });
@@ -457,7 +499,7 @@ $(document).ready(function () {
      ENVIAR PAGO PROVEEDORES
   --------------------------------------------------- */
   $('#enviarPAGOPROVEEDORES').on('click', function () {
-	      var $btn = $(this);
+    var $btn = $(this);
     if ($btn.prop('disabled')) return;
     $btn.prop('disabled', true).text('Guardando...');
 
@@ -493,9 +535,8 @@ $(document).ready(function () {
       }
     }).fail(function () {
       console.error('[enviarPAGOPROVEEDORES] Error en la petición AJAX.');
-	      }).always(function () {
+    }).always(function () {
       $btn.prop('disabled', false).text('GUARDAR');
-
     });
   });
 
@@ -519,7 +560,7 @@ $(document).ready(function () {
           // Recarga solo la fila afectada y su par (comportamiento original)
           $('#' + borra_id_sb).load(location.href + ' #' + borra_id_sb);
           $('#A' + borra_id_sb).load(location.href + ' #A' + borra_id_sb);
-		  location.reload();
+          location.reload();
         }
       });
     });

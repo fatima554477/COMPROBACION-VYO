@@ -1360,16 +1360,43 @@ $var4 = "DELETE FROM `07COMPROBACION_BITACORA` WHERE `id_comprobacion` = '".$id.
 	return $row['id'];	
 }
 
+
 	public function VALIDA02XMLUUID($uuid){
 $conn = $this->db(); 
-$variablequery = "select id,UUID from 07XML where UUID = '".$uuid."' "; 
+$variablequery = "select id,UUID,ultimo_id from 07XML where UUID = '".$uuid."' order by id desc limit 1 "; 
 $arrayquery = mysqli_query($conn,$variablequery);
 $row = mysqli_fetch_array($arrayquery, MYSQLI_ASSOC);
 if($row['id']==0 or $row['id']==''){
 	return 'S';
 }else{
+	if($row['ultimo_id'] != '' && $row['ultimo_id'] != '0'){
+		return $row['ultimo_id'];
+	}
 	return $row['id'];	
 }
+}
+
+	public function VALIDA02XMLUUID_DETALLE($uuid){
+$conn = $this->db();
+$variablequery = "select x.id, x.ultimo_id, c.NUMERO_EVENTO
+from 07XML x
+left join 07COMPROBACION c on c.id = x.ultimo_id
+where x.UUID = '".$uuid."'
+order by x.id desc
+limit 1";
+$arrayquery = mysqli_query($conn,$variablequery);
+$row = mysqli_fetch_array($arrayquery, MYSQLI_ASSOC);
+if($row['id']==0 or $row['id']==''){
+	return 'S';
+}
+
+$idMostrar = $row['id'];
+if($row['ultimo_id'] != '' && $row['ultimo_id'] != '0'){
+	$idMostrar = $row['ultimo_id'];
+}
+$numeroEvento = isset($row['NUMERO_EVENTO']) ? trim($row['NUMERO_EVENTO']) : '';
+
+return $idMostrar.'|'.$numeroEvento;
 }
 
 

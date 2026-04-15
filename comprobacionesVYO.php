@@ -68,6 +68,13 @@ $item_per_page = 7;
 //break total records into pages
 $pages = 1000;
 
+/* ============================================================
+   BLOQUEO XML — igual que en ventasoperaciones (doc 1)
+   ============================================================ */
+$regreso        = $pagoproveedores->variable_SUBETUFACTURA();
+$urlXml         = __ROOT1__.'/includes/archivos/'.$regreso['ADJUNTAR_FACTURA_XML'];
+$xmlFacturaCargada = !empty($regreso['ADJUNTAR_FACTURA_XML']) && file_exists($urlXml);
+$atributoBloqueoSelectXml = $xmlFacturaCargada ? 'disabled="disabled" style="background:#d7bde2;"' : '';
 
 ?>
 
@@ -88,27 +95,12 @@ $(document).ready(function() {
 
 });
 
-/*
-function calcular(){
-    var arr = document.getElementsByClassName("total");
-   
-    var tot=0;
-    for(var i=0;i<arr.length;i++){
-        if(parseFloat(arr[i].value))
-            tot += parseFloat(arr[i].value);
-    }
-    document.getElementById('MONTO_DEPOSITAR').value = tot;
-}
-*/
-
-
 function calcular() {
     const numberNoCommas = (x) => {
         return x.toString().replace(/,/g, "");
     }
 
     const numberWithCommas = (x) => {
-        //return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 		const num = parseFloat(x);
 		if (isNaN(num)) return '';
 		return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -134,22 +126,19 @@ function calcular() {
         inputElement.setSelectionRange(i, i);
     }
 
-    // Listener para inputs tipo .tol
     const inputs = document.querySelectorAll(".total");
 
     inputs.forEach(input => {
         input.addEventListener("keydown", function (e) {
             const keyCode = e.keyCode || e.which;
 
-            // Teclas numéricas (teclado principal del 0 al 9 o numpad 0 al 9)
             const isNumberKey =
-                (keyCode >= 48 && keyCode <= 57) || // Teclado principal
+                (keyCode >= 48 && keyCode <= 57) ||
                 (keyCode >= 96 && keyCode <= 105) ||
 				(keyCode === 46) ||
-				(keyCode === 8 );  // Numpad
+				(keyCode === 8 );
 
             if (isNumberKey) {
-                // Esperar a que el valor se actualice antes de formatear
                 setTimeout(() => {
                     const arr = document.getElementsByClassName("total");
 
@@ -163,25 +152,17 @@ function calcular() {
                     let IVA2 = numberNoCommas(IVA_elem.value);
                     let IMPUESTO_HOSPEDAJE2 = numberNoCommas(IMPUESTO_HOSPEDAJE_elem.value);
 					
-                    /*let tot = 0;
-                    for (let i = 0; i < arr.length; i++) {
-                        if (parseFloat(numberNoCommas(arr[i].value)))
-							
-                            tot += parseFloat(numberNoCommas(arr[i].value));
-							
-                    }*/
 					let tot = 0;
 					for (let i = 0; i < arr.length; i++) {
 						const inputName = arr[i].getAttribute("name");
 						const value = parseFloat(numberNoCommas(arr[i].value)) || 0;
 
 						if (["TImpuestosRetenidosIVA", "TImpuestosRetenidosISR", "descuentos"].includes(inputName)) {
-							tot -= value; // Se RESTA
+							tot -= value;
 						} else {
-							tot += value; // Se SUMA
+							tot += value;
 						}
 					}
-					
 					
                     formatInputPreservingCursor(document.getElementById('MONTO_DEPOSITAR'), tot);
                     formatInputPreservingCursor(MONTO_PROPINA_elem, MONTO_PROPINA2);
@@ -203,7 +184,6 @@ function calcular() {
                        const formatted = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
                        fechaInput.value = formatted;
                }
-// Ejecutamos todo cuando cargue el DOM
 document.addEventListener("DOMContentLoaded", calcular);
 
 function tieneAdjuntoFactura(campo) {
@@ -232,14 +212,21 @@ function validarUnSoloAdjuntoFactura(campo) {
 }
 
 function file_explorer_factura(campo) {
-
+	if (!validarUnSoloAdjuntoFactura(campo)) {
+		return false;
+	}
 
 	file_explorer(campo);
 	return true;
 }
 
 function upload_file_factura(event, campo) {
-
+	if (!validarUnSoloAdjuntoFactura(campo)) {
+		if (event) {
+			event.preventDefault();
+		}
+		return false;
+	}
 
 	upload_file(event, campo);
 	return true;
@@ -270,9 +257,6 @@ $(document).on('change','input[type="checkbox"]' ,function(e) {
 
 
 </script>
-
-<!-- <link href="inventario/css/style2.css" rel="stylesheet" type="text/css"> -->
-
 
 
 
@@ -336,66 +320,62 @@ while($rowsube=mysqli_fetch_array($listadosube)){
 	
 }
 	$NUMERO_CONSECUTIVO_PROVEE = '';	$FECHA_DE_PAGO = '';
-	$regreso = $pagoproveedores->variable_SUBETUFACTURA();
-	$url = __ROOT1__.'/includes/archivos/'.$regreso['ADJUNTAR_FACTURA_XML'];
-if( file_exists($url) ){
-	$regreso = $conexion2->lectorxml($url);
-	
-	$Version = $regreso['Version'];
-	$Descuento = $regreso['Descuento'];
-	$sello = $regreso['selo'];
-	$Certificado = $regreso['Certificado'];
-	$noCertificado = $regreso['noCertificado'];
-	$fecha = $regreso['fecha'];
-	$tipoDeComprobante = $regreso['tipoDeComprobante'];
-	$metodoDePago = $regreso['metodoDePago'];
-	$formaDePago = $regreso['formaDePago'];
-	$condicionesDePago = $regreso['condicionesDePago'];
-	$subTotal = $regreso['subTotal'];
-	$TipoCambio = $regreso['TipoCambio'];
-	$Moneda = $regreso['Moneda'];
-	$total = $regreso['total'];
-	$serie = $regreso['serie'];
-	$folio = $regreso['folio'];
-	$LugarExpedicion = $regreso['LugarExpedicion'];
-	
-	$rfcE = $regreso['rfcE'];					
-	$nombreE = $regreso['nombreE'];	
-	$regimenE = $regreso['regimenE'];
-	
-	$rfcR = $regreso['rfcR'];
-	$nombreR = $regreso['nombreR'];
-	$UsoCFDI = $regreso['UsoCFDI'];
-	$DomicilioFiscalReceptor = $regreso['DomicilioFiscalReceptor'];
-	$RegimenFiscalReceptor = $regreso['RegimenFiscalReceptor'];
-	
-	$UUID = $regreso['UUID'];
-	$selloCFD = $regreso['selloCFD'];
-	$noCertificadoSAT = $regreso['noCertificadoSAT'];	
-	$FechaTimbrado = $regreso['FechaTimbrado'];
-	$RfcProvCertif = $regreso['RfcProvCertif'];	
-	$TImpuestosRetenidos = $regreso['TImpuestosRetenidos'];
-	$TImpuestosTrasladados = $regreso['TImpuestosTrasladados'];
 
-	$Cantidad = $regreso['Cantidad'];
-	$ValorUnitario = $regreso['ValorUnitario'];
-	$Importe = $regreso['Importe'];
-	$ClaveProdServ = $regreso['ClaveProdServ'];
-	$Unidad = $regreso['Unidad'];
-	$Descripcion = $regreso['Descripcion'];
-	$ClaveUnidad = $regreso['ClaveUnidad'];
-	$NoIdentificacion = $regreso['NoIdentificacion'];
-	$ObjetoImp = $regreso['ObjetoImp'];
-    $impueRdesglosado002 = $regreso['impueRdesglosado002'];/*IVA*/
-	$impueRdesglosado001 = $regreso['impueRdesglosado001'];/*ISR*/
-	/*nuevo*/
+if( $xmlFacturaCargada ){
+	$regreso2 = $conexion2->lectorxml($urlXml);
+	
+	$Version = $regreso2['Version'];
+	$Descuento = $regreso2['Descuento'];
+	$sello = $regreso2['selo'];
+	$Certificado = $regreso2['Certificado'];
+	$noCertificado = $regreso2['noCertificado'];
+	$fecha = $regreso2['fecha'];
+	$tipoDeComprobante = $regreso2['tipoDeComprobante'];
+	$metodoDePago = $regreso2['metodoDePago'];
+	$formaDePago = $regreso2['formaDePago'];
+	$condicionesDePago = $regreso2['condicionesDePago'];
+	$subTotal = $regreso2['subTotal'];
+	$TipoCambio = $regreso2['TipoCambio'];
+	$Moneda = $regreso2['Moneda'];
+	$total = $regreso2['total'];
+	$serie = $regreso2['serie'];
+	$folio = $regreso2['folio'];
+	$LugarExpedicion = $regreso2['LugarExpedicion'];
+	
+	$rfcE = $regreso2['rfcE'];					
+	$nombreE = $regreso2['nombreE'];	
+	$regimenE = $regreso2['regimenE'];
+	
+	$rfcR = $regreso2['rfcR'];
+	$nombreR = $regreso2['nombreR'];
+	$UsoCFDI = $regreso2['UsoCFDI'];
+	$DomicilioFiscalReceptor = $regreso2['DomicilioFiscalReceptor'];
+	$RegimenFiscalReceptor = $regreso2['RegimenFiscalReceptor'];
+	
+	$UUID = $regreso2['UUID'];
+	$selloCFD = $regreso2['selloCFD'];
+	$noCertificadoSAT = $regreso2['noCertificadoSAT'];	
+	$FechaTimbrado = $regreso2['FechaTimbrado'];
+	$RfcProvCertif = $regreso2['RfcProvCertif'];	
+	$TImpuestosRetenidos = $regreso2['TImpuestosRetenidos'];
+	$TImpuestosTrasladados = $regreso2['TImpuestosTrasladados'];
+
+	$Cantidad = $regreso2['Cantidad'];
+	$ValorUnitario = $regreso2['ValorUnitario'];
+	$Importe = $regreso2['Importe'];
+	$ClaveProdServ = $regreso2['ClaveProdServ'];
+	$Unidad = $regreso2['Unidad'];
+	$Descripcion = $regreso2['Descripcion'];
+	$ClaveUnidad = $regreso2['ClaveUnidad'];
+	$NoIdentificacion = $regreso2['NoIdentificacion'];
+	$ObjetoImp = $regreso2['ObjetoImp'];
+    $impueRdesglosado002 = $regreso2['impueRdesglosado002'];/*IVA*/
+	$impueRdesglosado001 = $regreso2['impueRdesglosado001'];/*ISR*/
 
 	$fechaInicio=strtotime(date('Y-m-d'));
 	$FECHA_domingo = date('Y-m-d', strtotime('next monday', $fechaInicio));
 	$FECHA_jueves = date('Y-m-d', strtotime('next Thursday', strtotime($FECHA_domingo)));
-	$FECHA_DE_PAGO = $FECHA_jueves;//'2023-08-03';//. $conexion2->fechaEs($FECHA_jueves);
-
-	/*nuevo*/
+	$FECHA_DE_PAGO = $FECHA_jueves;
 		
 	$NUMERO_CONSECUTIVO_PROVEE = $pagoproveedores->select_02XML() + 1;
 }
@@ -444,7 +424,7 @@ while($rowsube=mysqli_fetch_array($listadosube)){
 
                  <tr  style="background:#fcf3cf"> 
                  <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">NOMBRE COMERCIAL</label></th>
-                 <td><input type="text" class="form-control"  required=""  value="<?php echo $NOMBRE_COMERCIAL; ?>" name="NOMBRE_COMERCIAL" placeholder="NOMBRE COMERCIAL"></td>
+                 <td><input type="text" class="form-control"  required=""  value="<?php echo $NOMBRE_COMERCIAL; ?>" name="NOMBRE_COMERCIAL" placeholder="NOMBRE COMERCIAL" <?php echo $xmlFacturaCargada ? 'readonly="readonly"' : ''; ?>></td>
                  </tr>
 				 
                  <tr style="background: #d2faf1"> 
@@ -455,7 +435,7 @@ while($rowsube=mysqli_fetch_array($listadosube)){
 				 
 				 <div id="RAZON_SOCIAL2">
 				 
-				 <input type="text" class="form-control" id="RAZON_SOCIAL" required=""  value="<?php echo $nombreE; ?>" name="RAZON_SOCIAL" placeholder="RAZÓN SOCIAL">
+				 <input type="text" class="form-control" id="RAZON_SOCIAL" required=""  value="<?php echo $nombreE; ?>" name="RAZON_SOCIAL" placeholder="RAZÓN SOCIAL" <?php echo $xmlFacturaCargada ? 'readonly="readonly"' : ''; ?>>
 				 </div>
 				 </td>
                  </tr>
@@ -467,7 +447,7 @@ while($rowsube=mysqli_fetch_array($listadosube)){
 				 
 				 <div id="RFC_PROVEEDOR2">
 				 
-				 <input type="text" class="form-control" id="RFC_PROVEEDOR" required=""  value="<?php echo $rfcE; ?>" name="RFC_PROVEEDOR" placeholder="RFC DEL PROVEEDOR">
+				 <input type="text" class="form-control" id="RFC_PROVEEDOR" required=""  value="<?php echo $rfcE; ?>" name="RFC_PROVEEDOR" placeholder="RFC DEL PROVEEDOR" <?php echo $xmlFacturaCargada ? 'readonly="readonly"' : ''; ?>>
 				 
 				 </div>
 				 </td>
@@ -476,28 +456,6 @@ while($rowsube=mysqli_fetch_array($listadosube)){
                  
                  <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">No. DE EVENTO:</label></th>
                  <td>
-				 
-<!--<input type="text" class="form-control" id="NUMERO_EVENTO" required=""  value="<?php echo $NUMERO_EVENTO; ?>" name="NUMERO_EVENTO"  placeholder="No. DE EVENTO">
-				 
-				  <script type="text/javascript" >
-			
-	        $('#NUMERO_EVENTO').typeahead({
-            source: function (busqueda, resultado) {
-                $.ajax({
-                    url: "pagoproveedores/controladorPP.php",
-					data: 'busqueda=' + busqueda,            
-                    dataType: "json",
-                    type: "POST",
-                    success: function (data) {
-						resultado($.map(data, function (item) {
-							return item;
-                        }));
-                    }
-                });
-            }
-        });
-		
-</script>-->
 
 <div style="">
   <select class="form-select mb-3" id="NUMERO_EVENTO" name="NUMERO_EVENTO" onchange="buscanombreevento(1);">
@@ -536,8 +494,6 @@ var parametros = {
 				$("#loader").html("Cargando...");
 			  },
 				success:function(data){
-					/*$(".datos_ajax").html(data).fadeIn('slow');
-					$("#loader").html("");*/
 	document.getElementsByName('NOMBRE_EVENTO')[0].value = data;		
 				}
 			})
@@ -562,7 +518,7 @@ var parametros = {
                  <tr style="background:#fcf3cf"> 
 
                  <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">CONCEPTO DE LA FACTURA:</label></th>
-                 <td><div id="CONCEPTO_PROVEE2"><input type="text" class="form-control" id="validationCustom03" required=""  value="<?php echo $Descripcion; ?>" name="CONCEPTO_PROVEE"placeholder="CONCEPTO DE LA FACTURA"></div></td>
+                 <td><div id="CONCEPTO_PROVEE2"><input type="text" class="form-control" id="validationCustom03" required=""  value="<?php echo $Descripcion; ?>" name="CONCEPTO_PROVEE"placeholder="CONCEPTO DE LA FACTURA" <?php echo $xmlFacturaCargada ? 'readonly="readonly"' : ''; ?>></div></td>
                  </tr>
 				 
             <tr style="background:#fcf3cf">
@@ -573,12 +529,12 @@ var parametros = {
 				 <td> 
 				 
 				<div id="2MONTO_FACTURA">			 
-				 <div class="input-group mb-3"> <span class="input-group-text">$</span> <input type="text"  style="width:300px;height:40px;"  id="MONTO_FACTURA" required="" onkeyup="calcular()"   value="<?php echo $subTotal; ?>" name="MONTO_FACTURA" class="total"  placeholder="SUB TOTAL">
+				 <div class="input-group mb-3"> <span class="input-group-text">$</span> <input type="text"  style="width:300px;height:40px;"  id="MONTO_FACTURA" required="" onkeyup="calcular()"   value="<?php echo $subTotal; ?>" name="MONTO_FACTURA" class="total"  placeholder="SUB TOTAL" <?php echo $xmlFacturaCargada ? 'readonly="readonly"' : ''; ?>>
 				
 				</div></div>
 				 </td>
                  </tr>
-				 				 <tr style="background:#fcf3cf">
+				 <tr style="background:#fcf3cf">
 				 <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">IVA:</label></th>
               
                  
@@ -586,29 +542,29 @@ var parametros = {
 				 <td> 
 				 
 				<div id="2IVA">			 
-     <div class="input-group mb-3"> <span class="input-group-text">$</span> <input type="text"  style="width:300px;height:40px;"  id="IVA" required="" onkeyup="calcular()"   value="<?php echo $TImpuestosTrasladados; ?>"  name="IVA" class="total"  placeholder="IVA">
+     <div class="input-group mb-3"> <span class="input-group-text">$</span> <input type="text"  style="width:300px;height:40px;"  id="IVA" required="" onkeyup="calcular()"   value="<?php echo $TImpuestosTrasladados; ?>"  name="IVA" class="total"  placeholder="IVA" <?php echo $xmlFacturaCargada ? 'readonly="readonly"' : ''; ?>>
 				
 				</div></div>
 				 </td>
                  </tr>
 				 
-				 				 <tr style="background:#fcf3cf">
+				 <tr style="background:#fcf3cf">
 				 <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">IMPUESTOS RETENIDOS &nbsp;<a style="color:red;font:12px">(IVA)</a></label></th>				 
 				 <td> 
 				 
 				<div id="2TImpuestosRetenidosIVA">			 
-     <div class="input-group mb-3"> <span class="input-group-text">$</span> <input type="text"  style="width:300px;height:40px;"  id="TImpuestosRetenidosIVA" required=""    value="<?php echo $impueRdesglosado002; ?>"  name="TImpuestosRetenidosIVA"  class="total" placeholder="IMPUESTOS RETENIDOS IVA">
+     <div class="input-group mb-3"> <span class="input-group-text">$</span> <input type="text"  style="width:300px;height:40px;"  id="TImpuestosRetenidosIVA" required=""    value="<?php echo $impueRdesglosado002; ?>"  name="TImpuestosRetenidosIVA"  class="total" placeholder="IMPUESTOS RETENIDOS IVA" <?php echo $xmlFacturaCargada ? 'readonly="readonly"' : ''; ?>>
 				
 				</div></div>
 				 </td>
                  </tr>
 				 
-				 				 <tr style="background:#fcf3cf">
+				 <tr style="background:#fcf3cf">
 				 <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">IMPUESTOS RETENIDOS &nbsp;<a style="color:red;font:12px">(ISR)</label></th>				 
 				 <td> 
 				 
 				<div id="2TImpuestosRetenidosISR">			 
-     <div class="input-group mb-3"> <span class="input-group-text">$</span> <input type="text"  style="width:300px;height:40px;"  id="TImpuestosRetenidosISR" required=""   value="<?php echo $impueRdesglosado001; ?>"  name="TImpuestosRetenidosISR"  class="total" placeholder="IMPUESTOS RETENIDOS ISR">
+     <div class="input-group mb-3"> <span class="input-group-text">$</span> <input type="text"  style="width:300px;height:40px;"  id="TImpuestosRetenidosISR" required=""   value="<?php echo $impueRdesglosado001; ?>"  name="TImpuestosRetenidosISR"  class="total" placeholder="IMPUESTOS RETENIDOS ISR" <?php echo $xmlFacturaCargada ? 'readonly="readonly"' : ''; ?>>
 				
 				</div></div>
 				 </td>
@@ -639,7 +595,7 @@ var parametros = {
 				 <td> 
 				 
 				<div id="2descuentos">			 
-     <div class="input-group mb-3"> <span class="input-group-text">$</span> <input type="text"  style="width:300px;height:40px;"  id="descuentos" required=""    value="<?php echo $Descuento; ?>"  name="descuentos"  class="total" placeholder="DESCUENTO">
+     <div class="input-group mb-3"> <span class="input-group-text">$</span> <input type="text"  style="width:300px;height:40px;"  id="descuentos" required=""    value="<?php echo $Descuento; ?>"  name="descuentos"  class="total" placeholder="DESCUENTO" <?php echo $xmlFacturaCargada ? 'readonly="readonly"' : ''; ?>>
 				
 				</div></div>
 				 </td>
@@ -661,7 +617,7 @@ var parametros = {
                  <td>
 				 
              <div id="TIPO_DE_MONEDA2">				 
-         <select class="form-select mb-3" aria-label="Default select example" id="validationCustom02" required="" name="TIPO_DE_MONEDA">                
+         <select class="form-select mb-3" aria-label="Default select example" id="validationCustom02" required="" name="TIPO_DE_MONEDA" <?php echo $atributoBloqueoSelectXml; ?>>                
                   <option style="background: #c9e8e8" name="TIPO_DE_MONEDA" value="MXN" <?php if($Moneda=='MXN'){echo "selected";} ?>>MXN (Peso mexicano)</option>
                      <option style="background: #a3e4d7" name="TIPO_DE_MONEDA" value="USD" <?php if($Moneda=='USD'){echo "selected";} ?>>USD (Dolar)</option>
                      <option style="background: #e8f6f3" name="TIPO_DE_MONEDA" value="EUR" <?php if($Moneda=='EUR'){echo "selected";} ?>>EUR (Euro)</option>
@@ -674,8 +630,10 @@ var parametros = {
                      <option style="background: #ebedef" name="TIPO_DE_MONEDA" value="AUD" <?php if($Moneda=='AUD'){echo "selected";} ?>>AUD (Dólar australiano)</option>
                      <option style="background: #fbeee6" name="TIPO_DE_MONEDA" value="BRL" <?php if($Moneda=='BRL'){echo "selected";} ?>>BRL (Real brasileño)</option>
                      <option style="background: #e8f6f3" name="TIPO_DE_MONEDA" value="RUB" <?php if($Moneda=='RUB'){echo "selected";} ?>>RUB  (Rublo ruso)</option>
-
-                     </select> 
+                     </select>
+                     <?php if($xmlFacturaCargada){ ?>
+                     <input type="hidden" name="TIPO_DE_MONEDA" value="<?php echo $Moneda; ?>">
+                     <?php } ?>
                         </div>
                  
                  </td>                    
@@ -716,9 +674,7 @@ var parametros = {
 
 <div id="2PFORMADE_PAGO">
 
-
-
-<select name="PFORMADE_PAGO" class="form-select mb-3"  aria-label="Default select example">
+<select name="PFORMADE_PAGO" class="form-select mb-3"  aria-label="Default select example" <?php echo $atributoBloqueoSelectXml; ?>>
 
     <option style="background:#dee6fc"  <?php if($formaDePago=='04'){echo "selected ";} ?> value="04">04 TARJETA DE CREDITO</option>
     <option style="background:#f2b4f5"  <?php if($formaDePago=='03'){echo "selected";} ?> value="03">03 TRANSFERENCIA ELECTRONICA DE FONDOS</option>
@@ -732,7 +688,9 @@ var parametros = {
     <option style="background:#f9e5fa" <?php if($formaDePago=='99'){echo "selected";} ?> value="99">99 OTRO</option>
 
 </select>
-
+<?php if($xmlFacturaCargada){ ?>
+<input type="hidden" name="PFORMADE_PAGO" value="<?php echo $formaDePago; ?>">
+<?php } ?>
 
 			  
         
@@ -818,13 +776,11 @@ while($rowsube=mysqli_fetch_array($listadosube)){
         if($num==8){$num=0;}else{$num++;}
         $color = $fondos[$num];
 
-        // Combina nombre completo
         $nombreCompleto = trim($row['NOMBRE_1'].' '.$row['NOMBRE_2'].' '.$row['APELLIDO_PATERNO'].' '.$row['APELLIDO_MATERNO']);
 
         $bancoOrigen = obtenerBancoOrigenPorEjecutivo($connecDB, $row['idRelacion']);
         $dataBanco = htmlspecialchars($bancoOrigen, ENT_QUOTES, 'UTF-8');
 
-        // Usa el ID como value
         $selectHTML .= '<option style="background:#'.$color.'"
                             data-banco="'.$dataBanco.'"
                             value="'.$row['idRelacion'].'">'.$nombreCompleto.'</option>';
@@ -849,7 +805,6 @@ while($rowsube=mysqli_fetch_array($listadosube)){
             $option = '';
             $queryper = $conexion->desplegables07('COMPROBACION','BANCO_ORIGEN');
             
-            // Almacenar y ordenar opciones
             $opciones = array();
             while($row1 = mysqli_fetch_array($queryper)) {
                 $opciones[] = $row1;
@@ -858,7 +813,6 @@ while($rowsube=mysqli_fetch_array($listadosube)){
                 return strcasecmp($a['nombre_campo'], $b['nombre_campo']);
             });
             
-            // Generar HTML
             $encabezado = '<select class="form-select mb-3" aria-label="Default select example" id="BANCO_ORIGEN" required="" name="BANCO_ORIGEN">
                            <option value="">SELECCIONA UNA OPCIÓN</option>';
             $fondos = array("fff0df","f4ffdf","dfffed","dffeff","dfe8ff","efdfff","ffdffd","efdfff","ffdfe9");
@@ -979,41 +933,6 @@ echo $encabezadoA.$option2.'</select>';
     </tr>
 
 
-
-
-
-
-<!-- <tr  style="background: #d2faf1">  
-
-
-<th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">MATCH CON EL ESTADO DE CUENTA:</label></th>
-<td>
-
-<div id="drop_file_zone" ondrop="upload_file(event,'FOTO_ESTADO_PROVEE11')" ondragover="return false" >
-<p>Suelta aquí o busca tu archivo</p>
-<p><input class="form-control form-control-sm" id="FOTO_ESTADO_PROVEE11" type="text" onkeydown="return false" onclick="file_explorer('FOTO_ESTADO_PROVEE11');"  VALUE="<?php echo $FOTO_ESTADO_PROVEE11; ?>" required /></p>
-<input type="file" name="FOTO_ESTADO_PROVEE11" id="nono"/>
-<div id="1FOTO_ESTADO_PROVEE11">
-<?php
-if($FOTO_ESTADO_PROVEE11!=""){echo "<a target='_blank' href='includes/archivos/".$FOTO_ESTADO_PROVEE11."'></a>"; 
-}?></div>
-</div>
-
-
-<div id="2FOTO_ESTADO_PROVEE11"><?php 
-$listadosube = $pagoproveedores->Listado_subefacturadocto('FOTO_ESTADO_PROVEE11');
-
-while($rowsube=mysqli_fetch_array($listadosube)){
-echo "<a target='_blank' href='includes/archivos/".$rowsube['FOTO_ESTADO_PROVEE11']."'  id='A".$rowsube['id']."' >Visualizar!</a> "." <span id='".$rowsube['id']."' class='view_dataSBborrar2' style='cursor:pointer;color:blue;'>Borrar!</span><span > ".$rowsube['fechaingreso']."</span>".'<br/>';
-}
-
-
-?></div>	
-
-</td>
-</tr>-->
-
-
 <tr  style="background: #d2faf1"> 
 
 <th scope="row"> <label  style="width:300px" for="validationCustom03" class="form-label">OBSERVACIONES:</label></th>
@@ -1048,14 +967,9 @@ echo "<a target='_blank' href='includes/archivos/".$rowsube['ADJUNTAR_ARCHIVO_1'
 </td>
 
 
-
-
-
  <input type="hidden" style="width:200px;" class="form-control" id="validationCustom03" value="<?php echo date('d-m-Y H:i:s'); ?>" name="FECHA_DE_LLENADO">
      
             
-				
- 
             
                           
 
@@ -1268,10 +1182,6 @@ echo "<a target='_blank' href='includes/archivos/".$rowsube['ADJUNTAR_ARCHIVO_1'
                  </tr></table><table>
              
  	<tr>
-				
-
-						
-
 
  <td style="text-align: left;"><button  class="btn btn-primary" type="button" onclick="history.back();" >REGRESAR AL EVENTO</button></td>
  
@@ -1322,4 +1232,3 @@ echo "<a target='_blank' href='includes/archivos/".$rowsube['ADJUNTAR_ARCHIVO_1'
 </div>
 </div>					  
 </div>
-

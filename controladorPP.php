@@ -13,6 +13,24 @@ $conexion = NEW colaboradores();
 $conexion2 = new herramientas();
 
 
+
+function normalizarTextoEmpresaVO($texto){
+    $texto = mb_strtoupper(trim((string)$texto), 'UTF-8');
+    $texto = preg_replace('/\s+/', ' ', $texto);
+    return $texto;
+}
+
+function receptorPermitidoEmpresaVO($nombreReceptor){
+    $empresasCorporativo = array(
+        normalizarTextoEmpresaVO('EVENTOS PROMOCIONES Y CONVENCIONES'),
+        normalizarTextoEmpresaVO('INNOVA CONGRESOS Y CONVENCIONES'),
+        normalizarTextoEmpresaVO('EVENTOS 520')
+    );
+
+    $nombreReceptorNormalizado = normalizarTextoEmpresaVO($nombreReceptor);
+    return $nombreReceptorNormalizado !== '' && in_array($nombreReceptorNormalizado, $empresasCorporativo, true);
+}
+
 $hiddenpagoproveedores = isset($_POST["hiddenpagoproveedores"])?$_POST["hiddenpagoproveedores"]:"";
 $validaDATOSBANCARIOS1 = isset($_POST["validaDATOSBANCARIOS1"])?$_POST["validaDATOSBANCARIOS1"]:"";
 $ENVIARRdatosbancario1p = isset($_POST["ENVIARRdatosbancario1p"])?$_POST["ENVIARRdatosbancario1p"]:"";
@@ -435,6 +453,15 @@ if( $_FILES["ADJUNTAR_FACTURA_XML"] == true){
 	//$explotado = explode('^',$ADJUNTAR_FACTURA_XML2);
 	$url = __ROOT1__.'/includes/archivos/'.$ADJUNTAR_FACTURA_XML2;	
 	$regreso = $conexion2->lectorxml($url);
+	$nombreR = isset($regreso['nombreR']) ? $regreso['nombreR'] : '';
+	if(!receptorPermitidoEmpresaVO($nombreR)){
+		echo '6^^'.trim((string)$nombreR);
+		if(file_exists($url)){
+			UNLINK($url);
+		}
+		$pagoproveedores->delete_subefactura2nombre($ADJUNTAR_FACTURA_XML2);
+		exit;
+	}
 	$rfcE = $regreso['rfcE'];					
 	$nombreE = $regreso['nombreE'];
 	$conn = $conexion->db();//verificar_usuario	
@@ -484,25 +511,6 @@ if($idCG == ''){
 	$_SESSION["idCG"] = $idCG;
 }
 
-// Bloquear carga duplicada de ADJUNTAR_FACTURA_XML y ADJUNTAR_FACTURA_PDF
-if(!empty($_FILES["ADJUNTAR_FACTURA_XML"]["name"]) && $idCG != ''){
-	if($pagoproveedores->tiene_adjunto_factura('ADJUNTAR_FACTURA_XML', $idCG)){
-		if(isset($ADJUNTAR_FACTURA_XML2) && $ADJUNTAR_FACTURA_XML2 != ''){
-			$_tmpPath = __ROOT1__.'/includes/archivos/'.$ADJUNTAR_FACTURA_XML2;
-			if(file_exists($_tmpPath)) unlink($_tmpPath);
-		}
-		echo "4";
-		exit;
-	}
-}
-if(!empty($_FILES["ADJUNTAR_FACTURA_PDF"]["name"]) && $idCG != ''){
-	if($pagoproveedores->tiene_adjunto_factura('ADJUNTAR_FACTURA_PDF', $idCG)){
-		echo "4";
-		exit;
-	}
-}
-
-
 if($IPpagoprovee !=''  and ($_FILES["ADJUNTAR_FACTURA_XML"] == true or $_FILES["ADJUNTAR_FACTURA_PDF"] == true or  $_FILES["ADJUNTAR_COTIZACION"] == true  or  $_FILES["CONPROBANTE_TRANSFERENCIA"] == true  or  $_FILES["ADJUNTAR_ARCHIVO_1"] == true or $_FILES["FOTO_ESTADO_PROVEE11"] == true  or  $_FILES["COMPLEMENTOS_PAGO_PDF"] == true or  $_FILES["COMPLEMENTOS_PAGO_XML"] == true or  $_FILES["CANCELACIONES_PDF"] == true or  $_FILES["CANCELACIONES_XML"] == true or  $_FILES ["ADJUNTAR_FACTURA_DE_COMISION_PDF"] == true or  $_FILES ["ADJUNTAR_FACTURA_DE_COMISION_XML"] == true or  $_FILES["CALCULO_DE_COMISION"] == true or  $_FILES["COMPROBANTE_DE_DEVOLUCION"] == true or  $_FILES["NOTA_DE_CREDITO_COMPRA"] == true )){
 if($IPpagoprovee != ''){
 
@@ -523,7 +531,7 @@ foreach($_FILES AS $ETQIETA => $VALOR){
 	$url = __ROOT1__.'/includes/archivos/'.$ADJUNTAR_FACTURA_XML;
 	if( file_exists($url) ){
 		$regreso = $conexion2->lectorxml($url);
-		$resultado = $pagoproveedores->VALIDA02XMLUUID($regreso['UUID']);
+		$resultado = $pagoproveedores->VALIDA02XMLUUID_DETALLE($regreso['UUID']);
 		if($resultado == 'S'){
 			
 		$pagoproveedores->borrar_xmls(__ROOT1__.'/includes/archivos/',$IPpagoprovee,$ADJUNTAR_FACTURA_XML,'07XML','07COMPROBACIONDOCT');
@@ -533,8 +541,8 @@ foreach($_FILES AS $ETQIETA => $VALOR){
 			$pagoproveedores->guardarxmlDB2($IPpagoprovee,$idCG,'07XML', $url);
 				ob_end_clean();
 			$pagoproveedores->registrar_bitacora_adjuntos($IPpagoprovee, 'XML', $ADJUNTAR_FACTURA_XML);
-		}else{
-			echo '3';
+	}else{
+			echo '3|'.$resultado;
 			UNLINK($url);
 			$pagoproveedores->delete_subefactura2nombre($ADJUNTAR_FACTURA_XML);
 		}
@@ -586,11 +594,11 @@ foreach($_FILES AS $ETQIETA => $VALOR){
 	$url = __ROOT1__.'/includes/archivos/'.$ADJUNTAR_FACTURA_XML;
 	if( file_exists($url) ){
 		$regreso = $conexion2->lectorxml($url);
-		$resultado = $pagoproveedores->VALIDA02XMLUUID($regreso['UUID']);
+	$resultado = $pagoproveedores->VALIDA02XMLUUID_DETALLE($regreso['UUID']);
 		if($resultado == 'S'){
 			echo $ADJUNTAR_FACTURA_XML;
 		}else{
-			echo '3';
+			echo '3|'.$resultado;
 			UNLINK($url);
 			$pagoproveedores->delete_subefactura2nombre($ADJUNTAR_FACTURA_XML);
 		}
