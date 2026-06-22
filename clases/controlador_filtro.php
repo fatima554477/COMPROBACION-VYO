@@ -11,10 +11,29 @@
 	----------------------------
 */
 
-if(!isset($_SESSION)) { session_start(); }
+if(!isset($_SESSION)) { 
+    session_start(); 
+}
 
 define("__ROOT6__", dirname(__FILE__));
 $action = (isset($_POST["action"]) && $_POST["action"] != NULL) ? $_POST["action"] : "";
+if($action == "bitacora_pago"){
+    require(__ROOT6__."/class.filtro.php");
+    $database = new orders();
+    $idComprobacion = isset($_POST['idSubetufactura']) ? intval($_POST['idSubetufactura']) : 0;
+
+    header('Content-Type: application/json; charset=utf-8');
+
+    if($idComprobacion <= 0){
+        echo json_encode(array());
+        exit;
+    }
+
+    // TEMPORAL: captura errores
+    $resultado = $database->Listado_bitacora_pagoproveedor_array($idComprobacion);
+    echo json_encode($resultado);
+    exit;
+}
 if($action == "ajax"){
 
 	require(__ROOT6__."/class.filtro.php");
@@ -37,6 +56,7 @@ if($action == "ajax"){
 	$CONCEPTO_PROVEE = isset($_POST["CONCEPTO_PROVEE"]) ? $_POST["CONCEPTO_PROVEE"] : ""; 
 	$MONTO_TOTAL_COTIZACION_ADEUDO = isset($_POST["MONTO_TOTAL_COTIZACION_ADEUDO"]) ? $_POST["MONTO_TOTAL_COTIZACION_ADEUDO"] : ""; 
 	$MONTO_FACTURA = isset($_POST["MONTO_FACTURA"]) ? $_POST["MONTO_FACTURA"] : ""; 
+	$ADJUNTAR_FACTURA_XML_VACIO = isset($_POST["ADJUNTAR_FACTURA_XML_VACIO"]) ? trim($_POST["ADJUNTAR_FACTURA_XML_VACIO"]) : "";
 	$EJECUTIVOTARJETA = isset($_POST["EJECUTIVOTARJETA_1"]) ? $_POST["EJECUTIVOTARJETA_1"] : ""; 
 	$MONTO_PROPINA = isset($_POST["MONTO_PROPINA"]) ? $_POST["MONTO_PROPINA"] : ""; 
 	$MONTO_DEPOSITAR = isset($_POST["MONTO_DEPOSITAR"]) ? $_POST["MONTO_DEPOSITAR"] : ""; 
@@ -124,6 +144,7 @@ if($action == "ajax"){
 		"MONTO_FACTURA" => $MONTO_FACTURA,
 		"MONTO_PROPINA" => $MONTO_PROPINA,
 		"MONTO_DEPOSITAR" => $MONTO_DEPOSITAR,
+		"ADJUNTAR_FACTURA_XML_VACIO" => $ADJUNTAR_FACTURA_XML_VACIO,
 		"TIPO_DE_MONEDA" => $TIPO_DE_MONEDA,
 		"PFORMADE_PAGO" => $PFORMADE_PAGO,
 		"FECHA_A_DEPOSITAR" => $FECHA_A_DEPOSITAR,
@@ -241,7 +262,7 @@ if($action == "ajax"){
 		<thead>
             <tr>
 <th style="background:#c9e8e8"></th>
-<th style="background:#c9e8e8">#</th>
+<th style="background:#c9e8e8">ID # </th>
 <th style="background:#c9e8e8">SOLICITANTE</th>
 <th style="background:#c9e8e8;text-align:center">VENTAS Y<br> OPERACIONES</th>
 <th style="background:#c9e8e8">DIRECCIÓN </th>
@@ -336,6 +357,7 @@ if($action == "ajax"){
 <?php if($p_sincuarenta_ver){ ?><th style="background:#c6eaaa;text-align:center">SIN 46%</th><?php } ?>
 <th style="background:#c9e8e8;text-align:center"></th>
 <th style="background:#c9e8e8;text-align:center"></th>
+<th style="background:#c9e8e8;text-align:center"></th>
             </tr>
             <tr>
 <td style="background:#c9e8e8"></td>
@@ -348,7 +370,13 @@ if($action == "ajax"){
 <?php if ($p_rechazo_ver) { ?><td style="background:#c9e8e8"></td><?php } ?>
 
 <?php if($database->plantilla_filtro($nombreTabla,"FECHA_DE_LLENADO",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8"><input type="text" class="form-control" id="FECHA_DE_LLENADO_1" value="<?php echo $FECHA_DE_LLENADO; ?>"></td><?php } ?>
-<?php if($database->plantilla_filtro($nombreTabla,"ADJUNTAR_FACTURA_XML",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8"><input type="text" class="form-control" id="ADJUNTAR_FACTURA_XML_1" value="<?php echo $ADJUNTAR_FACTURA_XML; ?>"></td><?php } ?>
+<?php if($database->plantilla_filtro($nombreTabla,"ADJUNTAR_FACTURA_XML",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8;text-align:center">
+		<div class="form-check" style="margin:0; white-space:nowrap;">
+			<input class="form-check-input" type="checkbox" value="si" id="ADJUNTAR_FACTURA_XML_VACIO" <?php if($ADJUNTAR_FACTURA_XML_VACIO==='si'){echo 'checked';} ?>>
+			<label class="form-check-label" for="ADJUNTAR_FACTURA_XML_VACIO">VACÍOS</label>
+		</div>
+	</div></td>
+<?php } ?>
 <?php if($database->plantilla_filtro($nombreTabla,"ADJUNTAR_FACTURA_PDF",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8"><input type="text" class="form-control" id="ADJUNTAR_FACTURA_PDF_1" value="<?php echo $ADJUNTAR_FACTURA_PDF; ?>"></td><?php } ?>
 <?php if($database->plantilla_filtro($nombreTabla,"NOMBRE_COMERCIAL",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8"><input type="text" class="form-control" id="NOMBRE_COMERCIAL_1" value="<?php echo $NOMBRE_COMERCIAL; ?>"></td><?php } ?>
 <?php if($database->plantilla_filtro($nombreTabla,"RAZON_SOCIAL",$altaeventos,$DEPARTAMENTO)=="si"){ ?><td style="background:#c9e8e8"><input type="text" class="form-control" id="RAZON_SOCIAL_1" value="<?php echo $RAZON_SOCIAL; ?>"></td><?php } ?>
@@ -431,6 +459,7 @@ if($action == "ajax"){
 <?php if($p_sincuarenta_ver){ ?><td style="background:#c6eaaa;text-align:center"></td><?php } ?>
 		<td style="background:#c9e8e8"></td>
 		<td style="background:#c9e8e8"></td>
+		<td style="background:#c9e8e8"></td>
             </tr>			
         </thead>
 		<?php if ($numrows<0){ ?>
@@ -447,18 +476,41 @@ foreach ($datos as $key => $row) {
     $fondo_existe_xml2 = "";
     $supropinamashospedaje = 0;
 
+// Consultar si existe complemento de pago XML para este registro
+$queryComplemento = $database->Listado_subefacturaDOCTOS($row['07COMPROBACIONid']);
+$tieneComplementoXML = false;
+while ($rowDoc = mysqli_fetch_array($queryComplemento)) {
+    if (!empty($rowDoc['COMPLEMENTOS_PAGO_XML'])) {
+        $tieneComplementoXML = true;
+        break;
+    }
+}
+
+// Ahora sí evaluar el color
 if (isset($row['STATUS_DE_PAGO']) && $row['STATUS_DE_PAGO'] == 'RECHAZADO') {
     $fondo_existe_xml = "style='background-color: #ff0000'";
     $fondo_existe_xml2 = "style='background-color: #ff0000'";
-} else if (isset($row['PFORMADE_PAGO']) && $row['PFORMADE_PAGO'] != '04') {
-    $fondo_existe_xml = "style='background-color: #ffb6c1'"; 
-    $fondo_existe_xml2 = "style='background-color: #ffb6c1'"; 
-} else if (!empty($row['ClaveProdServ'])) {
-    $fondo_existe_xml = "style='background-color: #ffffff'"; 
-    $fondo_existe_xml2 = "style='background-color: #ffffff'"; 
-} else if (empty($row['ClaveProdServ'])) {
-    $fondo_existe_xml2 = "style='background-color: #fdfe87'"; 
-    $fondo_existe_xml = "style='background-color: #fdfe87'"; 
+} 
+else if (isset($row['PFORMADE_PAGO']) && $row['PFORMADE_PAGO'] != '04') {
+    if ($tieneComplementoXML) {
+        $fondo_existe_xml = "style='background-color: #ffffff'";
+        $fondo_existe_xml2 = "style='background-color: #ffffff'";
+    } else {
+        $fondo_existe_xml = "style='background-color: #ffb6c1'";
+        $fondo_existe_xml2 = "style='background-color: #ffb6c1'";
+    }
+}
+else if (!empty($row['ClaveProdServ'])) {
+    $fondo_existe_xml = "style='background-color: #ffffff'";
+    $fondo_existe_xml2 = "style='background-color: #ffffff'";
+}
+else if (empty($row['ClaveProdServ'])) {
+    $fondo_existe_xml2 = "style='background-color: #fdfe87'";
+    $fondo_existe_xml = "style='background-color: #fdfe87'";
+}
+else {
+    $fondo_existe_xml = "";
+    $fondo_existe_xml2 = "";
 }
 ?>
 <tr <?php echo $fondo_existe_xml2; ?>>
@@ -523,14 +575,60 @@ if (!function_exists('renderDocumentLinks')) {
 	}
 }
 
+if (!function_exists('renderLastDocumentLink')) {
+	function renderLastDocumentLink($rawValue) {
+		if (!isset($rawValue) || trim((string)$rawValue) === '') return '';
+		$rawValue = html_entity_decode((string)$rawValue);
+		$chunks = preg_split('/\s*,\s*/', $rawValue, -1, PREG_SPLIT_NO_EMPTY);
+		$files = [];
+		$currentFile = '';
+		foreach ($chunks as $chunk) {
+			$chunk = trim($chunk);
+			if ($chunk === '') continue;
+			$currentFile = $currentFile === '' ? $chunk : $currentFile . ',' . $chunk;
+			if (preg_match('/\.[a-z0-9]{2,6}(?:[?#].*)?$/i', $currentFile) === 1) {
+				$files[] = $currentFile;
+				$currentFile = '';
+			}
+		}
+		if ($currentFile !== '') $files[] = $currentFile;
+		if (empty($files)) $files[] = trim($rawValue);
+
+		$file = trim((string)end($files));
+		if ($file === '') return '';
+
+		if (preg_match('#^https?://#i', $file) === 1) {
+			$filePath = $file;
+		} else {
+			$isAbsolutePath = strpos($file, '/') === 0;
+			$fileNormalizado = ltrim($file, '/');
+			if (stripos($fileNormalizado, 'includes/archivos/') === 0) {
+				$filePath = $fileNormalizado;
+			} else if ($isAbsolutePath) {
+				$filePath = $fileNormalizado;
+			} else {
+				$filePath = 'includes/archivos/' . $fileNormalizado;
+			}
+			$partesPath = array_map('rawurlencode', explode('/', $filePath));
+			$filePath = implode('/', $partesPath);
+			if ($isAbsolutePath) $filePath = '/' . $filePath;
+		}
+		return '<a href="' . $filePath . '" target="_blank">Ver!</a>';
+	}
+}
+
 $ADJUNTAR_FACTURA_PDF = ''; $ADJUNTAR_FACTURA_XML = ''; $ADJUNTAR_COTIZACION = ''; $CONPROBANTE_TRANSFERENCIA = '';
 $ADJUNTAR_ARCHIVO_1 = ''; $COMPLEMENTOS_PAGO_PDF = ''; $COMPLEMENTOS_PAGO_XML = ''; $CANCELACIONES_PDF = '';
 $CANCELACIONES_XML = ''; $ADJUNTAR_FACTURA_DE_COMISION_PDF = ''; $ADJUNTAR_FACTURA_DE_COMISION_XML = '';
 $CALCULO_DE_COMISION = ''; $COMPROBANTE_DE_DEVOLUCION = ''; $NOTA_DE_CREDITO_COMPRA = ''; $FOTO_ESTADO_PROVEE11 = '';
+
 $querycontrasDOCTOS = $database->Listado_subefacturaDOCTOS($row['07COMPROBACIONid']);
 while ($rowDOCTOS = mysqli_fetch_array($querycontrasDOCTOS)) {
-	$ADJUNTAR_FACTURA_PDF            .= renderDocumentLinks($rowDOCTOS["ADJUNTAR_FACTURA_PDF"]);
-	$ADJUNTAR_FACTURA_XML            .= renderDocumentLinks($rowDOCTOS["ADJUNTAR_FACTURA_XML"]);
+	$tmpPDF = renderLastDocumentLink($rowDOCTOS["ADJUNTAR_FACTURA_PDF"]);
+	if ($tmpPDF !== '') $ADJUNTAR_FACTURA_PDF = $tmpPDF;
+
+	$tmpXML = renderLastDocumentLink($rowDOCTOS["ADJUNTAR_FACTURA_XML"]);
+	if ($tmpXML !== '') $ADJUNTAR_FACTURA_XML = $tmpXML;
 	$ADJUNTAR_COTIZACION             .= renderDocumentLinks($rowDOCTOS["ADJUNTAR_COTIZACION"]);
 	$CONPROBANTE_TRANSFERENCIA       .= renderDocumentLinks($rowDOCTOS["CONPROBANTE_TRANSFERENCIA"]);
 	$COMPLEMENTOS_PAGO_PDF           .= renderDocumentLinks($rowDOCTOS["COMPLEMENTOS_PAGO_PDF"]);
@@ -905,7 +1003,11 @@ if (isset($STATUS_RECHAZADO) && $STATUS_RECHAZADO == "si") {
 <?php } ?>
 
 <div id="ajax-notification" style="position:fixed; top:20px; right:20px; padding:15px; background:#4CAF50; color:white; border-radius:5px; display:none; z-index:1000;"></div>
+<td >
 
+<input type="button" name="view_bitacora" value="BITÁCORA" id="<?php echo $row['07COMPROBACIONid']; ?>" class="btn btn-outline-primary btn-xs view_dataPAGOPROVEEbitacora" />
+
+</td>
 <td>
 <?php if($p_comvyo_mod){ ?>
 <input type="button" name="view" value="MODIFICAR" id="<?php echo $row['07COMPROBACIONid']; ?>" class="btn btn-info btn-xs view_dataPAGOPROVEEmodifica" />
@@ -913,14 +1015,27 @@ if (isset($STATUS_RECHAZADO) && $STATUS_RECHAZADO == "si") {
 <?php  
 $UUID_fila = isset($row['UUID']) ? trim($row['UUID']) : '';
 $STATUS_VENTAS_fila = isset($row['STATUS_VENTAS']) ? trim($row['STATUS_VENTAS']) : '';
-$esNoVentas = ($STATUS_VENTAS_fila === 'no' || $STATUS_VENTAS_fila === '' || $STATUS_VENTAS_fila === null);
 
-if ($p_subirfactura_ver && $esNoVentas) {
-    if ($UUID_fila != '') { ?>
-        <input type="button" name="view" value="MODIFICAR" id="<?php echo $row['07COMPROBACIONid']; ?>" class="btn btn-info btn-xs view_dataSUBIRCOM" />
-    <?php } else { ?>
-        <input type="button" name="view" value="SUBIR FACTURA" id="<?php echo $row['07COMPROBACIONid']; ?>" class="btn btn-info btn-xs view_dataSUBIRCOM" />
-    <?php }
+// NULL/vacío = siempre MODIFICAR; 'no' = depende del UUID
+$esNulo = ($STATUS_VENTAS_fila === '');
+$esNo   = ($STATUS_VENTAS_fila === 'no');
+
+if ($p_subirfactura_ver) {
+    if ($esNulo) { ?>
+        <input type="button" name="view" value="MODIFICAR"
+               id="<?php echo $row['07COMPROBACIONid']; ?>"
+               class="btn btn-info btn-xs view_dataSUBIRCOM" />
+    <?php } elseif ($esNo) {
+        if ($UUID_fila != '') { ?>
+            <input type="button" name="view" value="MODIFICAR"
+                   id="<?php echo $row['07COMPROBACIONid']; ?>"
+                   class="btn btn-info btn-xs view_dataSUBIRCOM" />
+        <?php } else { ?>
+            <input type="button" name="view" value="SUBIR FACTURA"
+                   id="<?php echo $row['07COMPROBACIONid']; ?>"
+                   class="btn btn-info btn-xs view_dataSUBIRCOM" />
+        <?php }
+    }
 }
 ?>
 </td>

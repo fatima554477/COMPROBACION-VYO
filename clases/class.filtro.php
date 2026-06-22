@@ -173,7 +173,14 @@ $sWhere2.="  $tables.STATUS_DE_PAGO LIKE '%".$search['STATUS_DE_PAGO']."%' AND "
 
 if($search['BANCO_ORIGEN']!=""){
 $sWhere2.="  $tables.BANCO_ORIGEN LIKE '%".$search['BANCO_ORIGEN']."%' AND ";}
+if(isset($search['ADJUNTAR_FACTURA_XML_VACIO']) 
+   && $search['ADJUNTAR_FACTURA_XML_VACIO'] == "si"){
 
+    $sWhere2 .= " (
+        07XML.UUID IS NULL
+        OR TRIM(07XML.UUID) = ''
+    ) and ";
+}
 if($search['ACTIVO_FIJO']!=""){
 $sWhere2.="  $tables.ACTIVO_FIJO LIKE '%".$search['ACTIVO_FIJO']."%' AND ";}
 if($search['GASTO_FIJO']!=""){
